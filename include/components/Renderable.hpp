@@ -16,7 +16,7 @@ class Position;
 
 class Renderable : public ashley::Component {
 public:
-	std::function<void(Position,float)> render;
+	std::function<void(Position*,float)> render;
 
 	Renderable(decltype(render) renderFunction) : render(renderFunction) {}
 };

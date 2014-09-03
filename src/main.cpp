@@ -55,8 +55,8 @@ int main(int argc, char **argv) {
 	auto e = std::make_shared<Entity>();
 	e->add<Player>();
 	e->add<Position>(25.0f, 25.0f);
-	e->add<Renderable>([](Position p, float delta) {
-		SDL_Rect rect({static_cast<int>(p.position.x), static_cast<int>(p.position.y), 32, 32});
+	e->add<Renderable>([](Position *p, float delta) {
+		SDL_Rect rect({static_cast<int>(p->position.x), static_cast<int>(p->position.y), 32, 32});
 		SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 0xFF, 0x00, 0xFF));
 	});
 

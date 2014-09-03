@@ -15,12 +15,12 @@
 
 stinkingRich::RenderSystem::RenderSystem(int priority) :
 		ashley::IteratingSystem(
-				*(ashley::Family::getFor( { typeid(Position), typeid(Renderable) })), priority) {
+				ashley::Family::getFor( { typeid(Position), typeid(Renderable) }), priority) {
 
 }
 
 void stinkingRich::RenderSystem::processEntity(std::shared_ptr<ashley::Entity> &ptr,
 		float deltaTime) {
 	ashley::ComponentMapper<Renderable>::getFor().get(ptr)->render(
-			ashley::ComponentMapper<Position>::getFor().get(ptr).operator*(), deltaTime);
+			ashley::ComponentMapper<Position>::getFor().get(ptr).get(), deltaTime);
 }
