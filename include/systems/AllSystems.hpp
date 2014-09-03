@@ -1,0 +1,13 @@
+/*
+ * AllSystems.hpp
+ *
+ * Created on: 3 Sep 2014
+ * Author: Ashley Davis (SgtCoDFish)
+ */
+
+#ifndef ALLSYSTEMS_HPP_
+#define ALLSYSTEMS_HPP_
+
+#include "RenderSystem.hpp"
+
+#endif /* ALLSYSTEMS_HPP_ */

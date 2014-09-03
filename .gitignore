@@ -1,0 +1,10 @@
+.project
+.cproject
+.settings/
+.settings/*
+
+Debug/*
+Release/*
+
+*.dll
+*.o
