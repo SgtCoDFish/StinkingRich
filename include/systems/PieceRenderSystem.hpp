@@ -12,9 +12,9 @@
 
 namespace stinkingRich {
 
-class RenderSystem : public ashley::IteratingSystem {
+class PieceRenderSystem : public ashley::IteratingSystem {
 public:
-	RenderSystem(int priority);
+	PieceRenderSystem(int priority);
 
 	void processEntity(std::shared_ptr<ashley::Entity> &ptr, float deltaTime) override;
 };

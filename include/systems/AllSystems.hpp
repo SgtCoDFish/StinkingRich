@@ -8,6 +8,7 @@
 #ifndef ALLSYSTEMS_HPP_
 #define ALLSYSTEMS_HPP_
 
-#include "RenderSystem.hpp"
+#include "PieceRenderSystem.hpp"
+#include "BoardRenderSystem.hpp"
 
 #endif /* ALLSYSTEMS_HPP_ */

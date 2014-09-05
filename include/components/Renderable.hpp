@@ -10,15 +10,18 @@
 
 #include <functional>
 
+#include <SDL2/SDL.h>
 
 namespace stinkingRich {
 class Position;
 
 class Renderable : public ashley::Component {
 public:
-	std::function<void(Position*,float)> render;
+	std::function<void(std::shared_ptr<Position>, const SDL_Color &, float)> render;
 
-	Renderable(decltype(render) renderFunction) : render(renderFunction) {}
+	Renderable(decltype(render) renderFunction) :
+			render(renderFunction) {
+	}
 };
 
 }
