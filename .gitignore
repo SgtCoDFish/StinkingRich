@@ -9,3 +9,4 @@ Release/*
 *.dll
 *.o
 /Debug/
+/Release/

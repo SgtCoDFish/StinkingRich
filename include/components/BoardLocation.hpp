@@ -5,8 +5,8 @@
  * Author: Ashley Davis (SgtCoDFish)
  */
 
-#ifndef BOARDLOCATION_HPP_
-#define BOARDLOCATION_HPP_
+#ifndef BOARDLOCATIONCOMPONENT_HPP_
+#define BOARDLOCATIONCOMPONENT_HPP_
 
 #include <cstdint>
 

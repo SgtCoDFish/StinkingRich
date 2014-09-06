@@ -5,8 +5,8 @@
  * Author: Ashley Davis (SgtCoDFish)
  */
 
-#ifndef RENDERSYSTEM_HPP_
-#define RENDERSYSTEM_HPP_
+#ifndef PIECERENDERSYSTEM_HPP_
+#define PIECERENDERSYSTEM_HPP_
 
 #include "Ashley/systems/IteratingSystem.hpp"
 

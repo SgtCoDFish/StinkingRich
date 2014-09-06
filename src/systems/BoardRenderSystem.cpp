@@ -13,13 +13,16 @@
 #include "Ashley/core/ComponentMapper.hpp"
 #include "Ashley/systems/IteratingSystem.hpp"
 
+#include "BoardLocationDetails.hpp"
+#include "components/BoardLocation.hpp"
 #include "systems/BoardRenderSystem.hpp"
 
 #include "SDL2/SDL.h"
 
+
 stinkingRich::BoardRenderSystem::BoardRenderSystem(SDL_Surface *surface, int64_t priority) :
-		surface(surface), priority(priority), family(
-				ashley::Family::getFor( { typeid(BoardLocation) })) {
+		ashley::IteratingSystem(
+				ashley::Family::getFor({typeid(stinkingRich::BoardLocation)}), priority), surface(surface) {
 }
 
 void stinkingRich::BoardRenderSystem::processEntity(std::shared_ptr<ashley::Entity> &entity,
@@ -27,7 +30,7 @@ void stinkingRich::BoardRenderSystem::processEntity(std::shared_ptr<ashley::Enti
 	const auto &boardLocation = ashley::ComponentMapper<BoardLocation>::getMapper().get(entity);
 	const SDL_Color color = stinkingRich::BoardLocationDetails::getPropertyGroupColor(boardLocation->details.group);
 
-	const SDL_Rect rect = {boardLocation->boardX, boardLocation->boardY, BoardLocation::w, BoardLocation::h};
+	const SDL_Rect rect = {boardLocation->boardX * stinkingRich::BoardLocation::w, surface->h - boardLocation->boardY * stinkingRich::BoardLocation::h, BoardLocation::w, BoardLocation::h};
 
 	SDL_FillRect(surface, &rect, SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a));
 }

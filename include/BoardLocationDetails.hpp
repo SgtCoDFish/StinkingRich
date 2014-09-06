@@ -5,8 +5,8 @@
  * Author: Ashley Davis (SgtCoDFish)
  */
 
-#ifndef BOARDLOCATION_HPP_
-#define BOARDLOCATION_HPP_
+#ifndef BOARDLOCATIONDETAILS_HPP_
+#define BOARDLOCATIONDETAILS_HPP_
 
 #include "SDL2/SDL.h"
 

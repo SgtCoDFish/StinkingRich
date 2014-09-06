@@ -5,8 +5,8 @@
  * Author: Ashley Davis (SgtCoDFish)
  */
 
-#ifndef STINKINGRICH_HPP_
-#define STINKINGRICH_HPP_
+#ifndef STINKINGRICHMAIN_HPP_
+#define STINKINGRICHMAIN_HPP_
 
 #include <vector>
 #include <string>
