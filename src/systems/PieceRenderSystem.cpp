@@ -16,11 +16,11 @@
 #include "components/House.hpp"
 #include "systems/PieceRenderSystem.hpp"
 
-stinkingRich::PieceRenderSystem::PieceRenderSystem(int priority) :
+stinkingRich::PieceRenderSystem::PieceRenderSystem(SDL_Surface *surface, int priority) :
 		ashley::IteratingSystem(
 				ashley::Family::getFor(ashley::ComponentType::getBitsFor<Renderable, Position>(),
 						ashley::ComponentType::getBitsFor<Player, House>(),
-						ashley::BitsType()), priority) {
+						ashley::BitsType()), priority), surface(surface) {
 }
 
 void stinkingRich::PieceRenderSystem::processEntity(std::shared_ptr<ashley::Entity> &ptr,

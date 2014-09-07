@@ -13,8 +13,11 @@
 namespace stinkingRich {
 
 class PieceRenderSystem : public ashley::IteratingSystem {
+private:
+	SDL_Surface *surface;
+
 public:
-	PieceRenderSystem(int priority);
+	PieceRenderSystem(SDL_Surface *surface, int priority);
 
 	void processEntity(std::shared_ptr<ashley::Entity> &ptr, float deltaTime) override;
 };

@@ -20,8 +20,11 @@ class BoardLocation : public ashley::Component {
 public:
 	BoardLocation(BoardLocationDetails &details, int8_t boardX, int8_t boardY) : details(details), boardX(boardX), boardY(boardY) {}
 
-	static const int w = 50;
-	static const int h = 50;
+	static constexpr int w = 50;
+	static constexpr int h = 50;
+
+	static constexpr int boardW = w * 11;
+	static constexpr int boardH = h * 11;
 
 	stinkingRich::BoardLocationDetails details;
 

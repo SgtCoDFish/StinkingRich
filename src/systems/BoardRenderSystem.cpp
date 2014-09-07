@@ -19,18 +19,30 @@
 
 #include "SDL2/SDL.h"
 
-
 stinkingRich::BoardRenderSystem::BoardRenderSystem(SDL_Surface *surface, int64_t priority) :
-		ashley::IteratingSystem(
-				ashley::Family::getFor({typeid(stinkingRich::BoardLocation)}), priority), surface(surface) {
+		ashley::IteratingSystem(ashley::Family::getFor( { typeid(stinkingRich::BoardLocation) }),
+				priority), surface(surface) {
 }
 
 void stinkingRich::BoardRenderSystem::processEntity(std::shared_ptr<ashley::Entity> &entity,
 		float deltaTime) {
 	const auto &boardLocation = ashley::ComponentMapper<BoardLocation>::getMapper().get(entity);
-	const SDL_Color color = stinkingRich::BoardLocationDetails::getPropertyGroupColor(boardLocation->details.group);
+	const SDL_Color color = stinkingRich::BoardLocationDetails::getPropertyGroupColor(
+			boardLocation->details.group);
 
-	const SDL_Rect rect = {boardLocation->boardX * stinkingRich::BoardLocation::w, surface->h - boardLocation->boardY * stinkingRich::BoardLocation::h, BoardLocation::w, BoardLocation::h};
+	const int totalBoardWidth = stinkingRich::BoardLocation::boardW;
+	const int totalBoardHeight = stinkingRich::BoardLocation::boardH;
+
+	// (surface->w - totalBoardWidth) / 2 == the gap either side of the board
+	const int boardBottomRightX = surface->w - totalBoardWidth
+			- ((surface->w - totalBoardWidth) / 2);
+
+	const int boardBottomRightY = (surface->h - totalBoardHeight) / 2 + totalBoardHeight;
+
+	const SDL_Rect rect = { boardLocation->boardX * stinkingRich::BoardLocation::w
+			+ boardBottomRightX, boardBottomRightY
+			- (boardLocation->boardY + 1) * stinkingRich::BoardLocation::h, BoardLocation::w,
+			BoardLocation::h };
 
 	SDL_FillRect(surface, &rect, SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a));
 }

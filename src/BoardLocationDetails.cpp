@@ -112,6 +112,8 @@ std::vector<stinkingRich::BoardLocationDetails> stinkingRich::BoardLocationDetai
 	locations.emplace_back(std::string(communityChestString), LocationType::COMMUNITY_CHEST,
 			PropertyGroup::NONE, MoneyType(0, 0));
 
+	locations.emplace_back("Marlborough Street", LocationType::PROPERTY, PropertyGroup::ORANGE, MoneyType(180,0));
+
 	locations.emplace_back("Vine Street", LocationType::PROPERTY, PropertyGroup::ORANGE,
 			MoneyType(200, 0));
 
