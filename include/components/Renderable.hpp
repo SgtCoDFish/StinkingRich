@@ -8,20 +8,28 @@
 #ifndef RENDERABLE_HPP_
 #define RENDERABLE_HPP_
 
-#include <functional>
+#include <cstdint>
+#include <memory>
+
+#include "Ashley/core/Component.hpp"
 
 #include <SDL2/SDL.h>
 
 namespace stinkingRich {
-class Position;
-
+/**
+ * <p>Indicates that an entity can be drawn to the screen.</p>
+ *
+ * <p>Note that the component owns its texture frees it upon destruction.</p>
+ */
 class Renderable : public ashley::Component {
 public:
-	std::function<void(std::shared_ptr<Position>, const SDL_Color &, float)> render;
+	 int32_t w;
+	 int32_t h;
 
-	Renderable(decltype(render) renderFunction) :
-			render(renderFunction) {
-	}
+	 SDL_Texture *texture;
+
+	 Renderable(SDL_Texture *tex);
+	 ~Renderable();
 };
 
 }

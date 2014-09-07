@@ -23,7 +23,8 @@ private:
 	static const int BOARD_LOCATION_COUNT = 40;
 
 	SDL_Window *window;
-	SDL_Surface *surface;
+
+	SDL_Renderer *renderer;
 
 	ashley::Engine engine;
 
@@ -36,7 +37,10 @@ private:
 
 	void initBoard();
 public:
-	StinkingRich(SDL_Window *window, SDL_Surface *surface);
+	static int32_t windowWidth;
+	static int32_t windowHeight;
+
+	StinkingRich();
 	~StinkingRich();
 
 	StinkingRich(StinkingRich &other) = delete;
@@ -46,7 +50,8 @@ public:
 	StinkingRich &operator=(StinkingRich &&other) = delete;
 
 	void init();
-	void update(float deltaTime);
+	bool update(float deltaTime);
+	void close();
 };
 
 }

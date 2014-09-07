@@ -20,9 +20,9 @@ namespace stinkingRich {
 
 class BoardRenderSystem : public ashley::IteratingSystem {
 private:
-	SDL_Surface *surface;
+	SDL_Renderer *renderer;
 public:
-	BoardRenderSystem(SDL_Surface *surface, int64_t priority);
+	BoardRenderSystem(SDL_Renderer *renderer, int64_t priority);
 
 	void processEntity(std::shared_ptr<ashley::Entity> &entity, float deltaTime) override;
 };

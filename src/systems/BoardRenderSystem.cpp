@@ -13,37 +13,41 @@
 #include "Ashley/core/ComponentMapper.hpp"
 #include "Ashley/systems/IteratingSystem.hpp"
 
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_ttf.h"
+
+#include "StinkingRich.hpp"
+#include "StinkingRichConstants.hpp"
 #include "BoardLocationDetails.hpp"
+#include "components/Position.hpp"
 #include "components/BoardLocation.hpp"
+#include "components/Renderable.hpp"
 #include "systems/BoardRenderSystem.hpp"
 
-#include "SDL2/SDL.h"
-
-stinkingRich::BoardRenderSystem::BoardRenderSystem(SDL_Surface *surface, int64_t priority) :
-		ashley::IteratingSystem(ashley::Family::getFor( { typeid(stinkingRich::BoardLocation) }),
-				priority), surface(surface) {
+stinkingRich::BoardRenderSystem::BoardRenderSystem(SDL_Renderer *renderer, int64_t priority) :
+		ashley::IteratingSystem(ashley::Family::getFor( { typeid(stinkingRich::Renderable),
+				typeid(stinkingRich::BoardLocation) }), priority), renderer(renderer) {
 }
 
 void stinkingRich::BoardRenderSystem::processEntity(std::shared_ptr<ashley::Entity> &entity,
 		float deltaTime) {
-	const auto &boardLocation = ashley::ComponentMapper<BoardLocation>::getMapper().get(entity);
-	const SDL_Color color = stinkingRich::BoardLocationDetails::getPropertyGroupColor(
-			boardLocation->details.group);
+	const auto &boardLocation =
+			ashley::ComponentMapper<stinkingRich::BoardLocation>::getMapper().get(entity);
+	const auto &renderable = ashley::ComponentMapper<stinkingRich::Renderable>::getMapper().get(
+			entity);
 
-	const int totalBoardWidth = stinkingRich::BoardLocation::boardW;
-	const int totalBoardHeight = stinkingRich::BoardLocation::boardH;
+	const int32_t leftGap = (stinkingRich::StinkingRich::windowWidth
+			- stinkingRich::constants::boardWidth) / 2;
+	const int32_t topGap = (stinkingRich::StinkingRich::windowHeight
+			- stinkingRich::constants::boardHeight) / 2;
 
-	// (surface->w - totalBoardWidth) / 2 == the gap either side of the board
-	const int boardBottomRightX = surface->w - totalBoardWidth
-			- ((surface->w - totalBoardWidth) / 2);
+	const int32_t xPos = leftGap + boardLocation->boardX * renderable->w;
+	const int32_t yPos = stinkingRich::constants::boardHeight
+			- (1 + boardLocation->boardY) * renderable->h + topGap;
 
-	const int boardBottomRightY = (surface->h - totalBoardHeight) / 2 + totalBoardHeight;
+	const SDL_Rect rect = { xPos, yPos, renderable->w, renderable->h };
 
-	const SDL_Rect rect = { boardLocation->boardX * stinkingRich::BoardLocation::w
-			+ boardBottomRightX, boardBottomRightY
-			- (boardLocation->boardY + 1) * stinkingRich::BoardLocation::h, BoardLocation::w,
-			BoardLocation::h };
+	SDL_RenderCopy(renderer, renderable->texture, nullptr, &rect);
 
-	SDL_FillRect(surface, &rect, SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a));
 }
 

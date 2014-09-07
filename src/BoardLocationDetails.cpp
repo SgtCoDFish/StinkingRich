@@ -5,13 +5,25 @@
  * Author: Ashley Davis (SgtCoDFish)
  */
 
+#include <cstdint>
+
+#include <iostream>
 #include <vector>
 #include <utility>
+#include <string>
+#include <sstream>
+#include <memory>
+
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_ttf.h"
 
 #include "BoardLocationDetails.hpp"
 #include "util/MoneyType.hpp"
 
-#include "SDL2/SDL.h"
+#include "StinkingRichConstants.hpp"
+#include "components/BoardLocation.hpp"
+#include "components/Renderable.hpp"
+#include "components/Position.hpp"
 
 using namespace stinkingRich;
 
@@ -53,7 +65,7 @@ SDL_Color stinkingRich::BoardLocationDetails::getPropertyGroupColor(PropertyGrou
 	}
 }
 
-std::vector<stinkingRich::BoardLocationDetails> stinkingRich::BoardLocationDetails::getAllLocations() {
+std::vector<stinkingRich::BoardLocationDetails> stinkingRich::BoardLocationDetails::getAllLocationDetails() {
 	std::vector<stinkingRich::BoardLocationDetails> locations;
 
 	const std::string communityChestString = "Community Chest";
@@ -70,7 +82,7 @@ std::vector<stinkingRich::BoardLocationDetails> stinkingRich::BoardLocationDetai
 	locations.emplace_back("Whitechapel Road", LocationType::PROPERTY, PropertyGroup::BROWN,
 			MoneyType(60, 0));
 
-	locations.emplace_back("Income Tax", LocationType::TAX, PropertyGroup::NONE,
+	locations.emplace_back("Income Tax", LocationType::INCOME_TAX, PropertyGroup::NONE,
 			MoneyType(-200, 0));
 
 	locations.emplace_back("King's Cross Station", LocationType::STATION, PropertyGroup::NONE,
@@ -112,7 +124,8 @@ std::vector<stinkingRich::BoardLocationDetails> stinkingRich::BoardLocationDetai
 	locations.emplace_back(std::string(communityChestString), LocationType::COMMUNITY_CHEST,
 			PropertyGroup::NONE, MoneyType(0, 0));
 
-	locations.emplace_back("Marlborough Street", LocationType::PROPERTY, PropertyGroup::ORANGE, MoneyType(180,0));
+	locations.emplace_back("Marlborough Street", LocationType::PROPERTY, PropertyGroup::ORANGE,
+			MoneyType(180, 0));
 
 	locations.emplace_back("Vine Street", LocationType::PROPERTY, PropertyGroup::ORANGE,
 			MoneyType(200, 0));
@@ -170,11 +183,191 @@ std::vector<stinkingRich::BoardLocationDetails> stinkingRich::BoardLocationDetai
 	locations.emplace_back("Park Lane", LocationType::PROPERTY, PropertyGroup::DARK_BLUE,
 			MoneyType(350, 0));
 
-	locations.emplace_back("Super Tax", LocationType::TAX, PropertyGroup::NONE, MoneyType(-100, 0));
+	locations.emplace_back("Super Tax", LocationType::SUPER_TAX, PropertyGroup::NONE,
+			MoneyType(-100, 0));
 
 	locations.emplace_back("Mayfair", LocationType::PROPERTY, PropertyGroup::DARK_BLUE,
 			MoneyType(400, 0));
 
+	std::cout << "Location count: " << locations.size() << std::endl;
+
 	return locations;
+}
+
+std::vector<std::shared_ptr<ashley::Entity>> stinkingRich::BoardLocationDetails::getAllBoardEntities(
+		SDL_Renderer *renderer, TTF_Font *font) {
+	auto locs = getAllLocationDetails();
+
+	if (locs.size() == 0) {
+		std::cerr << "getAllLocationDetails() failed.\n";
+		return std::vector<std::shared_ptr<ashley::Entity>>();
+	}
+
+	std::vector<std::shared_ptr<ashley::Entity>> entities;
+
+	int8_t posX = 10;
+	int8_t posY = 0;
+
+	int8_t xDiff = 0;
+	int8_t yDiff = 0;
+
+	int8_t xDir = -1;
+	int8_t yDir = 0;
+
+	// by value because we want to copy the details for each
+	// into a new entity.
+	for (const auto location : locs) {
+		auto e = std::make_shared<ashley::Entity>();
+
+		int32_t locationWidth = -1;
+		int32_t locationHeight = -1;
+
+		e->add<stinkingRich::BoardLocation>(stinkingRich::BoardLocationDetails(location), posX,
+				posY);
+
+		posX += xDir;
+		posY += yDir;
+
+		xDiff += xDir;
+		yDiff += yDir;
+
+		if (xDiff == 10) {
+			xDiff = 0;
+			xDir = 0;
+			yDir = -1;
+
+			locationWidth = stinkingRich::constants::bigLocationWidth;
+			locationHeight = stinkingRich::constants::bigLocationHeight;
+		} else if (yDiff == 10) {
+			yDiff = 0;
+			xDir = 1;
+			yDir = 0;
+
+			locationWidth = stinkingRich::constants::bigLocationWidth;
+			locationHeight = stinkingRich::constants::bigLocationHeight;
+		} else if (xDiff == -10) {
+			xDiff = 0;
+			xDir = 0;
+			yDir = 1;
+
+			locationWidth = stinkingRich::constants::bigLocationWidth;
+			locationHeight = stinkingRich::constants::bigLocationHeight;
+		} else {
+			locationWidth = stinkingRich::constants::smallLocationWidth;
+			locationHeight = stinkingRich::constants::smallLocationHeight;
+		}
+
+		SDL_Surface *surfaceTemp = SDL_CreateRGBSurface(0, locationWidth, locationHeight, 32,
+				0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+		SDL_FillRect(surfaceTemp, nullptr,
+				SDL_MapRGBA(surfaceTemp->format, 0xFF, 0xFF, 0xFF, 0xFF));
+
+		auto renderText =
+				[&](const char *text) {SDL_Surface *textSurface = TTF_RenderUTF8_Blended_Wrapped(font, text, {0x00, 0x00, 0x00, 0xFF}, surfaceTemp->w);
+					SDL_BlitSurface(textSurface, nullptr, surfaceTemp, nullptr);};
+
+		if (surfaceTemp == nullptr) {
+			std::cerr << "Could not create surface while loading all entities:\n" << SDL_GetError()
+					<< std::endl;
+			return std::vector<std::shared_ptr<ashley::Entity>>();
+		}
+
+		SDL_Texture *texture = nullptr;
+
+		switch (location.type) {
+		case LocationType::PROPERTY: {
+			auto color = getPropertyGroupColor(location.group);
+			SDL_FillRect(surfaceTemp, nullptr,
+					SDL_MapRGBA(surfaceTemp->format, color.r, color.g, color.b, color.a));
+
+			renderText(location.name.c_str());
+			break;
+		}
+
+		case LocationType::CHANCE: {
+			renderText("Chance!");
+			break;
+		}
+
+		case LocationType::COMMUNITY_CHEST: {
+			renderText("Community Chest");
+			break;
+		}
+
+		case LocationType::GO: {
+			// TODO: Non-i8n ready hack
+			std::stringstream ss;
+			ss << "GO!\nCollect " << stinkingRich::constants::currencySymbol << "200!";
+
+			renderText(ss.str().c_str());
+			break;
+		}
+
+		case LocationType::GO_TO_JAIL: {
+			renderText("Go to jail.");
+			break;
+		}
+
+		case LocationType::STATION: {
+			renderText(location.name.c_str());
+			break;
+		}
+
+		case LocationType::UTILITY: {
+			SDL_Color color;
+			if (location.name.find("Water") == std::string::npos) {
+				color = {0x00, 0x66, 0x99, 0xFF};
+			} else {
+				color = {0xDD, 0xDD, 0x00, 0xFF};
+			}
+
+			SDL_FillRect(surfaceTemp, nullptr,
+					SDL_MapRGBA(surfaceTemp->format, color.r, color.g, color.b, color.a));
+			renderText(location.name.c_str());
+			break;
+		}
+
+		case LocationType::FREE_PARKING: {
+			renderText("Free\nParking");
+			break;
+		}
+
+		case LocationType::SUPER_TAX: {
+			// TODO: Non-i8n ready hack
+			std::stringstream ss;
+			ss << "Super Tax\nPay " << stinkingRich::constants::currencySymbol << "100.";
+			renderText(ss.str().c_str());
+			break;
+		}
+
+		case LocationType::INCOME_TAX: {
+			// TODO: Non-i8n ready hack
+			std::stringstream ss;
+			ss << "Income Tax\nPay " << stinkingRich::constants::currencySymbol << "200.";
+			renderText(ss.str().c_str());
+			break;
+		}
+
+		case LocationType::JUST_VISITING: {
+			renderText("Just Visiting!");
+			break;
+		}
+
+		default: {
+			std::cout << "Unhandled case in getAllBoardEntities()" << std::endl;
+			break;
+		}
+		};
+
+		texture = SDL_CreateTextureFromSurface(renderer, surfaceTemp);
+
+		e->add<Renderable>(texture);
+
+		entities.push_back(e);
+
+		SDL_FreeSurface(surfaceTemp);
+	}
+
+	return entities;
 }
 

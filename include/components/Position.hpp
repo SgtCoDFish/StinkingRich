@@ -8,17 +8,19 @@
 #ifndef POSITION_HPP_
 #define POSITION_HPP_
 
+#include <cstdint>
+
 #include "glm/glm.hpp"
 
 namespace stinkingRich {
 
 class Position : public ashley::Component {
 public:
-	glm::vec2 position;
+	glm::ivec2 position;
 
-	Position() : position(glm::vec2(0.0f, 0.0f)) {}
-	Position(float x, float y) : position(glm::vec2(x, y)) {}
-	Position(glm::vec2 position) : position(position) {}
+	Position() : position(glm::vec2(0, 0)) {}
+	Position(int32_t x, int32_t y) : position(glm::ivec2(x, y)) {}
+	Position(glm::ivec2 position) : position(position) {}
 };
 
 }

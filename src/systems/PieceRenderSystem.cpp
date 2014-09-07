@@ -16,17 +16,19 @@
 #include "components/House.hpp"
 #include "systems/PieceRenderSystem.hpp"
 
-stinkingRich::PieceRenderSystem::PieceRenderSystem(SDL_Surface *surface, int priority) :
+stinkingRich::PieceRenderSystem::PieceRenderSystem(SDL_Renderer *renderer, int priority) :
 		ashley::IteratingSystem(
 				ashley::Family::getFor(ashley::ComponentType::getBitsFor<Renderable, Position>(),
-						ashley::ComponentType::getBitsFor<Player, House>(),
-						ashley::BitsType()), priority), surface(surface) {
+						ashley::ComponentType::getBitsFor<Player, House>(), ashley::BitsType()),
+				priority), renderer(renderer) {
 }
 
 void stinkingRich::PieceRenderSystem::processEntity(std::shared_ptr<ashley::Entity> &ptr,
 		float deltaTime) {
-	auto position = ashley::ComponentMapper<Position>::getMapper().get(ptr);
-	auto &color = ashley::ComponentMapper<Player>::getMapper().getRaw(ptr)->color;
+	const auto &p = ashley::ComponentMapper<Position>::getMapper().get(ptr);
+	const auto &renderable = ashley::ComponentMapper<Renderable>::getMapper().get(ptr);
 
-	ashley::ComponentMapper<Renderable>::getMapper().get(ptr)->render(position, color, deltaTime);
+	const SDL_Rect rect = { p->position.x, p->position.y, renderable->w, renderable->h };
+
+	SDL_RenderCopy(renderer, renderable->texture, nullptr, &rect);
 }
