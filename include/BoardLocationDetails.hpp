@@ -24,8 +24,6 @@ namespace stinkingRich {
 enum class LocationType {
 	GO,
 	PROPERTY,
-	STATION,
-	UTILITY,
 	COMMUNITY_CHEST,
 	CHANCE,
 	JUST_VISITING,
@@ -37,7 +35,7 @@ enum class LocationType {
 };
 
 enum class PropertyGroup {
-	BROWN, LIGHT_BLUE, MAGENTA, ORANGE, RED, YELLOW, GREEN, DARK_BLUE, NONE
+	BROWN, LIGHT_BLUE, MAGENTA, ORANGE, RED, YELLOW, GREEN, DARK_BLUE, STATION, UTILITY, NONE
 };
 
 class BoardLocationDetails {

@@ -9,6 +9,7 @@
 #include <cmath>
 
 #include <iostream>
+#include <typeinfo>
 #include <vector>
 #include <string>
 #include <sstream>
@@ -28,6 +29,8 @@ using namespace stinkingRich;
 
 int32_t stinkingRich::StinkingRich::windowWidth = -1;
 int32_t stinkingRich::StinkingRich::windowHeight = -1;
+int32_t stinkingRich::StinkingRich::leftGap = -1;
+int32_t stinkingRich::StinkingRich::topGap = -1;
 
 bool stinkingRich::StinkingRich::update(float deltaTime) {
 	SDL_Event event;
@@ -53,7 +56,7 @@ stinkingRich::StinkingRich::StinkingRich() :
 		throw stinkingRich::InitException("SDL_Init");
 	}
 
-	if(TTF_Init() < 0) {
+	if (TTF_Init() < 0) {
 		std::cerr << "Could not initialise SDL_TTF:\n" << TTF_GetError() << std::endl;
 		throw stinkingRich::InitException("TTF_Init");
 	}
@@ -61,9 +64,11 @@ stinkingRich::StinkingRich::StinkingRich() :
 	windowWidth = 1280;
 	windowHeight = 768;
 
+	leftGap = (stinkingRich::StinkingRich::windowWidth - stinkingRich::constants::boardWidth) / 2;
+	topGap = (stinkingRich::StinkingRich::windowHeight - stinkingRich::constants::boardHeight) / 2;
+
 	window = SDL_CreateWindow("Stinking Rich", SDL_WINDOWPOS_UNDEFINED,
 	SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
-
 
 	if (window == nullptr) {
 		std::cerr << "Could not make window: " << SDL_GetError() << std::endl;
@@ -71,7 +76,7 @@ stinkingRich::StinkingRich::StinkingRich() :
 	}
 
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	if(renderer == nullptr) {
+	if (renderer == nullptr) {
 		std::cerr << "Could not initialise renderer: " << SDL_GetError() << std::endl;
 		throw stinkingRich::InitException("renderer");
 	}
@@ -80,6 +85,9 @@ stinkingRich::StinkingRich::StinkingRich() :
 }
 
 stinkingRich::StinkingRich::~StinkingRich() {
+	go = nullptr;
+//	players.clear();
+	engine.removeAllEntities();
 	close();
 }
 
@@ -88,9 +96,17 @@ void stinkingRich::StinkingRich::initBoard() {
 
 	auto ents = stinkingRich::BoardLocationDetails::getAllBoardEntities(renderer, font);
 
-	for(auto e : ents) {
+	for (auto e : ents) {
 		engine.addEntity(e);
 	}
+
+	auto goEnts = engine.getEntitiesFor(Family::getFor( { typeid(GoLocation) }));
+
+	if (goEnts->size() == 0) {
+		throw InitException("No \"Go\"");
+	}
+
+	go = std::shared_ptr<ashley::Entity>(goEnts->at(0));
 
 	TTF_CloseFont(font);
 }
@@ -98,12 +114,20 @@ void stinkingRich::StinkingRich::initBoard() {
 void stinkingRich::StinkingRich::init() {
 	initBoard();
 
+	auto e = std::make_shared<Entity>();
+	e->add<Position>(go->getComponent<BoardLocation>());
+	e->add<Player>(playerColors[0]);
+	e->add<Renderable>(Renderable::getTextureFromColor(renderer, playerColors[0], 32, 32));
+
+	engine.addEntity(e);
+//	players.push_back(e);
+
 	engine.addSystem(std::make_shared<BoardRenderSystem>(renderer, 9000));
 	engine.addSystem(std::make_shared<PieceRenderSystem>(renderer, 10000));
 }
 
 void stinkingRich::StinkingRich::close() {
-	if(renderer != nullptr) {
+	if (renderer != nullptr) {
 		SDL_DestroyRenderer(renderer);
 		renderer = nullptr;
 	}

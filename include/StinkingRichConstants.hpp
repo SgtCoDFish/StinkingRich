@@ -21,6 +21,7 @@ namespace constants {
 
 const Money startingMoney = MoneyType(1500, 0);
 const std::string currencySymbol = "£";
+const std::string currencySeparator = ".";
 
 constexpr int32_t smallLocationWidth = 90;
 constexpr int32_t smallLocationHeight = 65;

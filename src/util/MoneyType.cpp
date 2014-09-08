@@ -81,8 +81,23 @@ MoneyType &stinkingRich::MoneyType::operator-=(MoneyType &other) {
 	return *this;
 }
 
-std::string stinkingRich::MoneyType::toString() const  {
+std::string stinkingRich::MoneyType::toString() const {
 	std::stringstream ss;
-	ss << stinkingRich::constants::currencySymbol << whole << "." << fractional;
+	ss << stinkingRich::constants::currencySymbol << whole;
+
+	if(fractional != 0) {
+		ss << stinkingRich::constants::currencySeparator << fractional;
+	}
+
 	return ss.str();
+}
+
+const char *stinkingRich::MoneyType::toCString() const {
+	return toString().c_str();
+}
+
+std::ostream &stinkingRich::operator <<(std::ostream &os, const MoneyType &money) {
+	// TODO: Better i18n
+	os << money.toString();
+	return os;
 }

@@ -28,17 +28,23 @@ private:
 
 	ashley::Engine engine;
 
-	const std::vector<SDL_Color> playerColors = { { 0xFF, 0x00, 0x00, 0xFF }, // red
-			{ 0x00, 0xFF, 0x00, 0xFF }, //green
-			{ 0x00, 0x00, 0xFF, 0xFF } //blue
+	const uint8_t playerAlpha = 0xAA;
+	const std::vector<SDL_Color> playerColors = { { 0xFF, 0x00, 0x00, playerAlpha }, // red
+			{ 0x00, 0xFF, 0x00, playerAlpha }, //green
+			{ 0x00, 0x00, 0xFF, playerAlpha } //blue
 	};
 
-	std::vector<ashley::Entity> players;
+	std::shared_ptr<ashley::Entity> go = nullptr;
+
+//	std::vector<std::shared_ptr<ashley::Entity>> players;
 
 	void initBoard();
 public:
 	static int32_t windowWidth;
 	static int32_t windowHeight;
+
+	static int32_t leftGap;
+	static int32_t topGap;
 
 	StinkingRich();
 	~StinkingRich();

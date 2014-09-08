@@ -24,6 +24,7 @@
 #include "components/BoardLocation.hpp"
 #include "components/Renderable.hpp"
 #include "components/Position.hpp"
+#include "components/GoLocation.hpp"
 
 using namespace stinkingRich;
 
@@ -60,6 +61,10 @@ SDL_Color stinkingRich::BoardLocationDetails::getPropertyGroupColor(PropertyGrou
 	case PropertyGroup::DARK_BLUE:
 		return {0x00, 0x00, 0xFF, 0xFF};
 
+	case PropertyGroup::UTILITY:
+	case PropertyGroup::STATION:
+		return {0xFF, 0xFF, 0xFF, 0xFF};
+
 	default:
 		return {0xFF, 0xFF, 0xFF, 0xFF};
 	}
@@ -85,10 +90,10 @@ std::vector<stinkingRich::BoardLocationDetails> stinkingRich::BoardLocationDetai
 	locations.emplace_back("Income Tax", LocationType::INCOME_TAX, PropertyGroup::NONE,
 			MoneyType(-200, 0));
 
-	locations.emplace_back("King's Cross Station", LocationType::STATION, PropertyGroup::NONE,
+	locations.emplace_back("King's Cross\nStation", LocationType::PROPERTY, PropertyGroup::STATION,
 			MoneyType(200, 0));
 
-	locations.emplace_back("The Angel, Islington", LocationType::PROPERTY,
+	locations.emplace_back("The Angel,\nIslington", LocationType::PROPERTY,
 			PropertyGroup::LIGHT_BLUE, MoneyType(100, 0));
 
 	locations.emplace_back(std::string(chanceString), LocationType::CHANCE, PropertyGroup::NONE,
@@ -106,17 +111,17 @@ std::vector<stinkingRich::BoardLocationDetails> stinkingRich::BoardLocationDetai
 	locations.emplace_back("Pall Mall", LocationType::PROPERTY, PropertyGroup::MAGENTA,
 			MoneyType(140, 0));
 
-	locations.emplace_back("Electric Company", LocationType::UTILITY, PropertyGroup::NONE,
+	locations.emplace_back("Electric Company", LocationType::PROPERTY, PropertyGroup::UTILITY,
 			MoneyType(150, 0));
 
 	locations.emplace_back("Whitehall", LocationType::PROPERTY, PropertyGroup::MAGENTA,
 			MoneyType(140, 0));
 
-	locations.emplace_back("Northumberland Avenue", LocationType::PROPERTY, PropertyGroup::MAGENTA,
+	locations.emplace_back("Northumberland\nAvenue", LocationType::PROPERTY, PropertyGroup::MAGENTA,
 			MoneyType(160, 0));
 
-	locations.emplace_back("Marylebone Station", LocationType::STATION, PropertyGroup::NONE,
-			MoneyType(0, 0));
+	locations.emplace_back("Marylebone\nStation", LocationType::PROPERTY, PropertyGroup::STATION,
+			MoneyType(200, 0));
 
 	locations.emplace_back("Bow Street", LocationType::PROPERTY, PropertyGroup::ORANGE,
 			MoneyType(180, 0));
@@ -144,7 +149,7 @@ std::vector<stinkingRich::BoardLocationDetails> stinkingRich::BoardLocationDetai
 	locations.emplace_back("Trafalgar Square", LocationType::PROPERTY, PropertyGroup::RED,
 			MoneyType(240, 0));
 
-	locations.emplace_back("Fenchurch Street Station", LocationType::STATION, PropertyGroup::NONE,
+	locations.emplace_back("Fenchurch Street\nStation", LocationType::PROPERTY, PropertyGroup::STATION,
 			MoneyType(200, 0));
 
 	locations.emplace_back("Leicester Square", LocationType::PROPERTY, PropertyGroup::YELLOW,
@@ -153,7 +158,7 @@ std::vector<stinkingRich::BoardLocationDetails> stinkingRich::BoardLocationDetai
 	locations.emplace_back("Coventry Street", LocationType::PROPERTY, PropertyGroup::YELLOW,
 			MoneyType(260, 0));
 
-	locations.emplace_back("Water Works", LocationType::UTILITY, PropertyGroup::NONE,
+	locations.emplace_back("Water Works", LocationType::PROPERTY, PropertyGroup::UTILITY,
 			MoneyType(150, 0));
 
 	locations.emplace_back("Piccadilly", LocationType::PROPERTY, PropertyGroup::YELLOW,
@@ -174,7 +179,7 @@ std::vector<stinkingRich::BoardLocationDetails> stinkingRich::BoardLocationDetai
 	locations.emplace_back("Bond Street", LocationType::PROPERTY, PropertyGroup::GREEN,
 			MoneyType(320, 0));
 
-	locations.emplace_back("Liverpool Street Station", LocationType::STATION, PropertyGroup::NONE,
+	locations.emplace_back("Liverpool Street\nStation", LocationType::PROPERTY, PropertyGroup::STATION,
 			MoneyType(200, 0));
 
 	locations.emplace_back(std::string(chanceString), LocationType::CHANCE, PropertyGroup::NONE,
@@ -277,10 +282,22 @@ std::vector<std::shared_ptr<ashley::Entity>> stinkingRich::BoardLocationDetails:
 		switch (location.type) {
 		case LocationType::PROPERTY: {
 			auto color = getPropertyGroupColor(location.group);
+
+			if(location.group == PropertyGroup::UTILITY) {
+				if (location.name.find("Water") == std::string::npos) {
+					color = {0x00, 0x66, 0x99, 0xFF};
+				} else {
+					color = {0xDD, 0xDD, 0x00, 0xFF};
+				}
+			}
+
 			SDL_FillRect(surfaceTemp, nullptr,
 					SDL_MapRGBA(surfaceTemp->format, color.r, color.g, color.b, color.a));
 
-			renderText(location.name.c_str());
+			//TODO: Non i18n ready
+			std::stringstream ss;
+			ss << location.name << "\n" << location.value;
+			renderText(ss.str().c_str());
 			break;
 		}
 
@@ -295,11 +312,12 @@ std::vector<std::shared_ptr<ashley::Entity>> stinkingRich::BoardLocationDetails:
 		}
 
 		case LocationType::GO: {
-			// TODO: Non-i8n ready hack
+			// TODO: Non-i18n ready hack
 			std::stringstream ss;
 			ss << "GO!\nCollect " << stinkingRich::constants::currencySymbol << "200!";
 
 			renderText(ss.str().c_str());
+			e->add<GoLocation>();
 			break;
 		}
 
@@ -308,24 +326,6 @@ std::vector<std::shared_ptr<ashley::Entity>> stinkingRich::BoardLocationDetails:
 			break;
 		}
 
-		case LocationType::STATION: {
-			renderText(location.name.c_str());
-			break;
-		}
-
-		case LocationType::UTILITY: {
-			SDL_Color color;
-			if (location.name.find("Water") == std::string::npos) {
-				color = {0x00, 0x66, 0x99, 0xFF};
-			} else {
-				color = {0xDD, 0xDD, 0x00, 0xFF};
-			}
-
-			SDL_FillRect(surfaceTemp, nullptr,
-					SDL_MapRGBA(surfaceTemp->format, color.r, color.g, color.b, color.a));
-			renderText(location.name.c_str());
-			break;
-		}
 
 		case LocationType::FREE_PARKING: {
 			renderText("Free\nParking");
@@ -333,7 +333,7 @@ std::vector<std::shared_ptr<ashley::Entity>> stinkingRich::BoardLocationDetails:
 		}
 
 		case LocationType::SUPER_TAX: {
-			// TODO: Non-i8n ready hack
+			// TODO: Non-i18n ready hack
 			std::stringstream ss;
 			ss << "Super Tax\nPay " << stinkingRich::constants::currencySymbol << "100.";
 			renderText(ss.str().c_str());
@@ -341,7 +341,7 @@ std::vector<std::shared_ptr<ashley::Entity>> stinkingRich::BoardLocationDetails:
 		}
 
 		case LocationType::INCOME_TAX: {
-			// TODO: Non-i8n ready hack
+			// TODO: Non-i18n ready hack
 			std::stringstream ss;
 			ss << "Income Tax\nPay " << stinkingRich::constants::currencySymbol << "200.";
 			renderText(ss.str().c_str());
@@ -366,6 +366,16 @@ std::vector<std::shared_ptr<ashley::Entity>> stinkingRich::BoardLocationDetails:
 		entities.push_back(e);
 
 		SDL_FreeSurface(surfaceTemp);
+	}
+
+	for(uint16_t i = 0; i < entities.size(); i++) {
+		uint16_t next = i + 1;
+
+		if(next == entities.size()) {
+			next = 0;
+		}
+
+		entities[i]->getComponent<BoardLocation>()->nextLocation = std::weak_ptr<ashley::Entity>(entities[next]);
 	}
 
 	return entities;

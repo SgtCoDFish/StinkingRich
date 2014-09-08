@@ -9,6 +9,7 @@
 #define MONEYTYPE_HPP_
 
 #include <cstdint>
+#include <iostream>
 
 #include <string>
 
@@ -62,7 +63,12 @@ public:
 	MoneyType &operator-=(MoneyType &other);
 
 	std::string toString() const;
+	const char *toCString() const;
+
+	friend std::ostream &operator<<(std::ostream &os, const MoneyType &money);
 };
+
+std::ostream &operator<<(std::ostream &os, const MoneyType &money);
 
 }
 

@@ -13,6 +13,6 @@
 #include "Renderable.hpp"
 #include "Player.hpp"
 #include "House.hpp"
-
+#include "GoLocation.hpp"
 
 #endif /* ALLCOMPONENTS_HPP_ */

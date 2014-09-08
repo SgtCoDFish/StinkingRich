@@ -36,18 +36,11 @@ void stinkingRich::BoardRenderSystem::processEntity(std::shared_ptr<ashley::Enti
 	const auto &renderable = ashley::ComponentMapper<stinkingRich::Renderable>::getMapper().get(
 			entity);
 
-	const int32_t leftGap = (stinkingRich::StinkingRich::windowWidth
-			- stinkingRich::constants::boardWidth) / 2;
-	const int32_t topGap = (stinkingRich::StinkingRich::windowHeight
-			- stinkingRich::constants::boardHeight) / 2;
+	glm::ivec2 loc = boardLocation->getWindowPosition(stinkingRich::StinkingRich::leftGap,
+			stinkingRich::StinkingRich::topGap, renderable->w, renderable->h);
 
-	const int32_t xPos = leftGap + boardLocation->boardX * renderable->w;
-	const int32_t yPos = stinkingRich::constants::boardHeight
-			- (1 + boardLocation->boardY) * renderable->h + topGap;
-
-	const SDL_Rect rect = { xPos, yPos, renderable->w, renderable->h };
+	const SDL_Rect rect = { loc.x, loc.y, renderable->w, renderable->h };
 
 	SDL_RenderCopy(renderer, renderable->texture, nullptr, &rect);
-
 }
 

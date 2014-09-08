@@ -10,11 +10,15 @@
 
 #include "Ashley/AshleyCore.hpp"
 
+#include "glm/glm.hpp"
+
 #include "components/Renderable.hpp"
 #include "components/Position.hpp"
 #include "components/Player.hpp"
 #include "components/House.hpp"
 #include "systems/PieceRenderSystem.hpp"
+#include "StinkingRich.hpp"
+#include "StinkingRichConstants.hpp"
 
 stinkingRich::PieceRenderSystem::PieceRenderSystem(SDL_Renderer *renderer, int priority) :
 		ashley::IteratingSystem(
@@ -28,7 +32,12 @@ void stinkingRich::PieceRenderSystem::processEntity(std::shared_ptr<ashley::Enti
 	const auto &p = ashley::ComponentMapper<Position>::getMapper().get(ptr);
 	const auto &renderable = ashley::ComponentMapper<Renderable>::getMapper().get(ptr);
 
-	const SDL_Rect rect = { p->position.x, p->position.y, renderable->w, renderable->h };
+	//TODO: fix ignoring big sizes here
+	const glm::ivec2 pos = p->position->getWindowPosition(stinkingRich::StinkingRich::leftGap,
+			stinkingRich::StinkingRich::topGap, stinkingRich::constants::smallLocationWidth,
+			stinkingRich::constants::smallLocationHeight);
+
+	const SDL_Rect rect = { pos.x, pos.y, renderable->w, renderable->h };
 
 	SDL_RenderCopy(renderer, renderable->texture, nullptr, &rect);
 }

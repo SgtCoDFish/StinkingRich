@@ -10,17 +10,15 @@
 
 #include <cstdint>
 
-#include "glm/glm.hpp"
+#include "components/BoardLocation.hpp"
 
 namespace stinkingRich {
 
 class Position : public ashley::Component {
 public:
-	glm::ivec2 position;
+	std::shared_ptr<BoardLocation> position;
 
-	Position() : position(glm::vec2(0, 0)) {}
-	Position(int32_t x, int32_t y) : position(glm::ivec2(x, y)) {}
-	Position(glm::ivec2 position) : position(position) {}
+	Position(std::shared_ptr<BoardLocation> pos) : position(pos) {}
 };
 
 }
