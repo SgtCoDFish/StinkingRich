@@ -81,6 +81,10 @@ MoneyType &stinkingRich::MoneyType::operator-=(MoneyType &other) {
 	return *this;
 }
 
+MoneyType stinkingRich::MoneyType::operator-() {
+	return MoneyType(-whole, -fractional);
+}
+
 std::string stinkingRich::MoneyType::toString() const {
 	std::stringstream ss;
 	ss << stinkingRich::constants::currencySymbol << whole;

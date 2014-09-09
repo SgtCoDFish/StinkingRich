@@ -16,6 +16,7 @@
 #include <new>
 #include <utility>
 #include <memory>
+#include <random>
 
 #include "Ashley/AshleyCore.hpp"
 
@@ -36,44 +37,19 @@ int32_t stinkingRich::StinkingRich::leftGap = -1;
 int32_t stinkingRich::StinkingRich::topGap = -1;
 
 bool stinkingRich::StinkingRich::_nextPlayer = false;
+std::mt19937_64 stinkingRich::StinkingRich::randomEngine = std::mt19937_64(std::random_device().operator ()());
 
 std::weak_ptr<ashley::Entity> stinkingRich::StinkingRich::currentPlayer = std::shared_ptr<
 		ashley::Entity>(nullptr);
 
+std::vector<std::weak_ptr<ashley::Entity>> stinkingRich::StinkingRich::allPlayers;
+
+Deck stinkingRich::StinkingRich::chanceCards = Deck(stinkingRich::CardType::CHANCE);
+Deck stinkingRich::StinkingRich::communityChestCards = Deck(stinkingRich::CardType::COMMUNITY_CHEST);
+
 bool stinkingRich::StinkingRich::update(float deltaTime) {
-	if (_nextPlayer) {
-		_nextPlayer = false;
-
-		auto currentPlayerID = currentPlayer.lock()->getComponent<Player>()->id;
-		std::cout << "Advancing player, current id is " << currentPlayerID << std::endl;
-
-		auto players = engine.getEntitiesFor(Family::getFor( { typeid(Player) }));
-
-		if (players->size() > 1) {
-			auto playerMapper = ComponentMapper<Player>::getMapper();
-
-			auto it = std::find_if(players->begin(), players->end(),
-					[&](std::shared_ptr<ashley::Entity> &ent) {
-						auto player = playerMapper.get(ent);
-						return player->id == currentPlayerID;
-					});
-
-			if (it == players->end()) {
-				std::cerr << "Something went horribly wrong, couldn't find current player.\n";
-				return true;
-			} else {
-				it++;
-
-				if (it == players->end()) {
-					it = players->begin();
-				}
-
-				currentPlayer = std::weak_ptr<ashley::Entity>((*it));
-				currentPlayerID = currentPlayer.lock()->getComponent<Player>()->id;
-			}
-		}
-
-		std::cout << "New current player id is " << currentPlayerID << std::endl;
+	if(handleNextPlayer()) {
+		return true;
 	}
 
 	SDL_Event event;
@@ -170,6 +146,10 @@ void stinkingRich::StinkingRich::init() {
 
 	// all players should be added before this point
 	auto players = engine.getEntitiesFor(Family::getFor( { typeid(Player) }));
+	for(auto player : *players) {
+		allPlayers.emplace_back(std::weak_ptr<ashley::Entity>(player));
+	}
+
 	if (players == nullptr || players->size() == 0) {
 		throw stinkingRich::InitException("Could not init players.");
 	}
@@ -183,6 +163,47 @@ void stinkingRich::StinkingRich::init() {
 
 void stinkingRich::StinkingRich::nextPlayer() {
 	_nextPlayer = true;
+}
+
+bool stinkingRich::StinkingRich::handleNextPlayer() {
+	if (_nextPlayer) {
+		_nextPlayer = false;
+
+		auto currentPlayerComponent = currentPlayer.lock()->getComponent<Player>();
+		auto currentPlayerID = currentPlayerComponent->id;
+		currentPlayerComponent->resetDoubles();
+		std::cout << "Advancing player, current id is " << currentPlayerID << std::endl;
+
+		auto players = engine.getEntitiesFor(Family::getFor( { typeid(Player) }));
+
+		if (players->size() > 1) {
+			auto playerMapper = ComponentMapper<Player>::getMapper();
+
+			auto it = std::find_if(players->begin(), players->end(),
+					[&](std::shared_ptr<ashley::Entity> &ent) {
+						auto player = playerMapper.get(ent);
+						return player->id == currentPlayerID;
+					});
+
+			if (it == players->end()) {
+				std::cerr << "Something went horribly wrong, couldn't find current player.\n";
+				return true;
+			} else {
+				it++;
+
+				if (it == players->end()) {
+					it = players->begin();
+				}
+
+				currentPlayer = std::weak_ptr<ashley::Entity>((*it));
+				currentPlayerID = currentPlayer.lock()->getComponent<Player>()->id;
+			}
+		}
+
+		std::cout << "New current player id is " << currentPlayerID << std::endl;
+	}
+
+	return false;
 }
 
 void stinkingRich::StinkingRich::close() {

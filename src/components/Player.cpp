@@ -35,6 +35,10 @@ void stinkingRich::Player::rolledDouble() {
 	doublesRolled++;
 }
 
+void stinkingRich::Player::resetDoubles() {
+	doublesRolled = 0;
+}
+
 void stinkingRich::Player::spentTurnInJail() {
 	turnsLeftInJail--;
 }

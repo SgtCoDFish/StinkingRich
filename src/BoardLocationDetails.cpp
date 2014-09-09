@@ -25,6 +25,7 @@
 #include "components/Renderable.hpp"
 #include "components/Position.hpp"
 #include "components/GoLocation.hpp"
+#include "components/JailLocation.hpp"
 
 using namespace stinkingRich;
 

@@ -11,17 +11,22 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <random>
 
 #include "Ashley/core/Engine.hpp"
 #include "Ashley/core/Entity.hpp"
 
 #include "SDL2/SDL.h"
 
+#include "cards/Card.hpp"
+
 namespace stinkingRich {
 
 class StinkingRich {
 private:
 	static const int BOARD_LOCATION_COUNT = 40;
+
+	static std::mt19937_64 randomEngine;
 
 	static bool _nextPlayer;
 
@@ -38,9 +43,9 @@ private:
 	};
 
 	std::shared_ptr<ashley::Entity> go = nullptr;
-//	std::vector<std::shared_ptr<ashley::Entity>> *players = nullptr;
 
 	void initBoard();
+	bool handleNextPlayer();
 public:
 	static int32_t windowWidth;
 	static int32_t windowHeight;
@@ -49,6 +54,10 @@ public:
 	static int32_t topGap;
 
 	static std::weak_ptr<ashley::Entity> currentPlayer;
+	static std::vector<std::weak_ptr<ashley::Entity>> allPlayers;
+
+	static Deck chanceCards;
+	static Deck communityChestCards;
 
 	StinkingRich();
 	~StinkingRich();
@@ -64,6 +73,14 @@ public:
 	void close();
 
 	static void nextPlayer();
+
+	static inline int64_t getRand(int64_t min, int64_t max) {
+		return std::uniform_int_distribution<>(min, max).operator ()(randomEngine);
+	}
+
+	static inline std::mt19937_64 &getRandEngine() {
+		return randomEngine;
+	}
 };
 
 }

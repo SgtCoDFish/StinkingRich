@@ -44,6 +44,7 @@ public:
 	const std::string getBalance() const;
 
 	void rolledDouble();
+	void resetDoubles();
 	void spentTurnInJail();
 
 	int8_t getTurnsLeftInJail() const;

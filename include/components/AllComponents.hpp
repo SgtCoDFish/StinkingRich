@@ -14,5 +14,6 @@
 #include "Player.hpp"
 #include "House.hpp"
 #include "GoLocation.hpp"
+#include "JailLocation.hpp"
 
 #endif /* ALLCOMPONENTS_HPP_ */

@@ -15,7 +15,7 @@
 namespace stinkingRich {
 
 class InputSystem : public ashley::EntitySystem {
-	constexpr static float TOTAL_PRESS_COOLDOWN = 1.0f;
+	constexpr static float TOTAL_PRESS_COOLDOWN = 0.5f;
 
 	const uint8_t *keyStates = nullptr;
 

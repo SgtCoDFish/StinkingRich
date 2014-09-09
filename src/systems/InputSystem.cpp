@@ -31,22 +31,23 @@ void stinkingRich::InputSystem::update(float deltaTime) {
 		pressCooldown -= deltaTime;
 	}
 
+	keyStates = SDL_GetKeyboardState(nullptr);
+
 	if (pressCooldown < 0.0f) {
 		pressCooldown = -1.0f;
 
-		keyStates = SDL_GetKeyboardState(nullptr);
-
 		if (keyStates[SDL_SCANCODE_SPACE]) {
-			if (doMove()) {
-
+			if (!doMove()) {
+				stinkingRich::StinkingRich::nextPlayer();
 			}
 
 			pressCooldown = TOTAL_PRESS_COOLDOWN;
-		} else if (keyStates[SDL_SCANCODE_RETURN]) {
-			stinkingRich::StinkingRich::nextPlayer();
+		} else if(keyStates[SDL_SCANCODE_F9]) {
+			auto c = stinkingRich::StinkingRich::communityChestCards.getTopCard();
+			std::cout << c.text << std::endl;
+			c.doEffect();
 			pressCooldown = TOTAL_PRESS_COOLDOWN;
 		}
-
 	}
 }
 
@@ -60,10 +61,15 @@ bool stinkingRich::InputSystem::doMove() {
 	auto playerComponent = ashley::ComponentMapper<stinkingRich::Player>::getMapper().get(
 			playerEntity);
 
-	int dieOne = (std::rand() % 6) + 1;
-	int dieTwo = (std::rand() % 6) + 1;
+	int dieOne = stinkingRich::StinkingRich::getRand(1, 6);
+	int dieTwo = stinkingRich::StinkingRich::getRand(1, 6);
 
 	int totalMove = dieOne + dieTwo;
+	if (keyStates[SDL_SCANCODE_1]) {
+		totalMove = 1;
+	} else if(keyStates[SDL_SCANCODE_5]) {
+		totalMove = 5;
+	}
 
 	std::cout << "Rolled " << dieOne << " and " << dieTwo << ", moving " << totalMove
 			<< " spaces.\n";
@@ -80,8 +86,6 @@ bool stinkingRich::InputSystem::doMove() {
 			return false;
 		}
 	}
-
-	std::cout.flush();
 
 	auto boardLocationMapper = ashley::ComponentMapper<stinkingRich::BoardLocation>::getMapper();
 
@@ -113,6 +117,17 @@ bool stinkingRich::InputSystem::doMove() {
 			} else if (type == stinkingRich::LocationType::GO_TO_JAIL) {
 				jailPlayer();
 				retVal = false;
+			} else if (type == stinkingRich::LocationType::CHANCE) {
+				auto card = stinkingRich::StinkingRich::chanceCards.getTopCard();
+				std::cout << "Drew \"" << card.text << "\".\n";
+				card.doEffect();
+			} else if (type == stinkingRich::LocationType::COMMUNITY_CHEST) {
+				auto card = stinkingRich::StinkingRich::communityChestCards.getTopCard();
+
+				std::cout << "Drew \"" << card.text << "\".\n";
+				std::cout.flush();
+
+				card.doEffect();
 			}
 		}
 
