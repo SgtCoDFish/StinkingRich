@@ -372,12 +372,16 @@ std::vector<std::shared_ptr<ashley::Entity>> stinkingRich::BoardLocationDetails:
 
 	for(uint16_t i = 0; i < entities.size(); i++) {
 		uint16_t next = i + 1;
+		int16_t prev = i - 1;
 
 		if(next == entities.size()) {
 			next = 0;
+		} else if(prev < 0) {
+			prev = entities.size() - 1;
 		}
 
 		entities[i]->getComponent<BoardLocation>()->nextLocation = std::weak_ptr<ashley::Entity>(entities[next]);
+		entities[i]->getComponent<BoardLocation>()->prevLocation = std::weak_ptr<ashley::Entity>(entities[prev]);
 	}
 
 	return entities;

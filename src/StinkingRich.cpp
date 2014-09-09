@@ -172,7 +172,6 @@ bool stinkingRich::StinkingRich::handleNextPlayer() {
 		auto currentPlayerComponent = currentPlayer.lock()->getComponent<Player>();
 		auto currentPlayerID = currentPlayerComponent->id;
 		currentPlayerComponent->resetDoubles();
-		std::cout << "Advancing player, current id is " << currentPlayerID << std::endl;
 
 		auto players = engine.getEntitiesFor(Family::getFor( { typeid(Player) }));
 

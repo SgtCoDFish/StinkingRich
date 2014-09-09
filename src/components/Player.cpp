@@ -7,8 +7,15 @@
 
 #include <cstdint>
 
+#include <memory>
+
+#include "Ashley/core/ComponentMapper.hpp"
+
 #include "StinkingRichConstants.hpp"
+#include "components/BoardLocation.hpp"
 #include "components/Player.hpp"
+#include "components/Position.hpp"
+#include "StinkingRich.hpp"
 
 using namespace stinkingRich;
 
@@ -49,4 +56,33 @@ int8_t stinkingRich::Player::getTurnsLeftInJail() const {
 
 int8_t stinkingRich::Player::getDoublesRolled() const {
 	return doublesRolled;
+}
+
+void stinkingRich::Player::jail() {
+	turnsLeftInJail = 3;
+
+	auto playerMapper = ashley::ComponentMapper<Player>::getMapper();
+	auto positionMapper = ashley::ComponentMapper<Position>::getMapper();
+
+	auto players = stinkingRich::StinkingRich::allPlayers;
+
+	for (auto p : players) {
+		auto plShared = p.lock();
+		auto positionS = positionMapper.get(plShared);
+		auto playerCompShared = playerMapper.get(plShared);
+
+		if (playerCompShared->id == id) {
+			// found this player
+			auto posLock = positionS->position.lock();
+
+			while (posLock->details.type != LocationType::JUST_VISITING) {
+				auto next = posLock->nextLocation.lock();
+
+				positionS->position = std::weak_ptr<BoardLocation>(
+						ashley::ComponentMapper<BoardLocation>::getMapper().get(next));
+
+				posLock = positionS->position.lock();
+			}
+		}
+	}
 }

@@ -89,7 +89,7 @@ std::string stinkingRich::MoneyType::toString() const {
 	std::stringstream ss;
 	ss << stinkingRich::constants::currencySymbol << whole;
 
-	if(fractional != 0) {
+	if (fractional != 0) {
 		ss << stinkingRich::constants::currencySeparator << fractional;
 	}
 
@@ -104,4 +104,12 @@ std::ostream &stinkingRich::operator <<(std::ostream &os, const MoneyType &money
 	// TODO: Better i18n
 	os << money.toString();
 	return os;
+}
+
+bool stinkingRich::operator==(MoneyType &one, MoneyType other) {
+	return one.operator==(other);
+}
+
+bool stinkingRich::operator!=(MoneyType &one, MoneyType other) {
+	return one.operator==(other);
 }

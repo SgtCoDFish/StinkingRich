@@ -34,6 +34,7 @@ public:
 					0) {
 		made++;
 	}
+
 	~Player() {
 		made--;
 	}
@@ -46,6 +47,16 @@ public:
 	void rolledDouble();
 	void resetDoubles();
 	void spentTurnInJail();
+
+	inline bool isJailed() {
+		return turnsLeftInJail > 0;
+	}
+
+	void jail();
+
+	inline void freeFromJail() {
+		turnsLeftInJail = 0;
+	}
 
 	int8_t getTurnsLeftInJail() const;
 	int8_t getDoublesRolled() const;

@@ -28,6 +28,7 @@ public:
 	int8_t boardY; // in "board" coordinates, 0 <= y <= 10
 
 	std::weak_ptr<ashley::Entity> nextLocation = std::shared_ptr<ashley::Entity>(nullptr);
+	std::weak_ptr<ashley::Entity> prevLocation = std::shared_ptr<ashley::Entity>(nullptr);
 
 	glm::ivec2 getWindowPosition(int32_t xOffset, int32_t yOffset, int32_t width, int32_t height) const;
 };

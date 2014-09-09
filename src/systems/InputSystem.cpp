@@ -42,8 +42,13 @@ void stinkingRich::InputSystem::update(float deltaTime) {
 			}
 
 			pressCooldown = TOTAL_PRESS_COOLDOWN;
-		} else if(keyStates[SDL_SCANCODE_F9]) {
+		} else if (keyStates[SDL_SCANCODE_F9]) {
 			auto c = stinkingRich::StinkingRich::communityChestCards.getTopCard();
+			std::cout << c.text << std::endl;
+			c.doEffect();
+			pressCooldown = TOTAL_PRESS_COOLDOWN;
+		}else if (keyStates[SDL_SCANCODE_F10]) {
+			auto c = stinkingRich::StinkingRich::chanceCards.getTopCard();
 			std::cout << c.text << std::endl;
 			c.doEffect();
 			pressCooldown = TOTAL_PRESS_COOLDOWN;
@@ -65,9 +70,10 @@ bool stinkingRich::InputSystem::doMove() {
 	int dieTwo = stinkingRich::StinkingRich::getRand(1, 6);
 
 	int totalMove = dieOne + dieTwo;
+
 	if (keyStates[SDL_SCANCODE_1]) {
 		totalMove = 1;
-	} else if(keyStates[SDL_SCANCODE_5]) {
+	} else if (keyStates[SDL_SCANCODE_5]) {
 		totalMove = 5;
 	}
 
@@ -79,59 +85,68 @@ bool stinkingRich::InputSystem::doMove() {
 		int doubles = playerComponent->getDoublesRolled();
 
 		std::cout << "Double rolled, total of " << doubles << ".\n";
-		retVal = true;
 
-		if (doubles == 3) {
-			jailPlayer();
-			return false;
+		if (playerComponent->isJailed()) {
+			playerComponent->freeFromJail();
+		} else {
+			retVal = true;
+
+			if (doubles == 3) {
+				jailPlayer();
+				return false;
+			}
 		}
 	}
 
-	auto boardLocationMapper = ashley::ComponentMapper<stinkingRich::BoardLocation>::getMapper();
+	if (!playerComponent->isJailed()) {
+		auto boardLocationMapper =
+				ashley::ComponentMapper<stinkingRich::BoardLocation>::getMapper();
 
-	for (int i = 0; i < totalMove; i++) {
-		auto newLocation = positionComponent->position.lock();
-		auto newLoc = newLocation->nextLocation.lock();
-		auto newBoardLoc = boardLocationMapper.get(newLoc);
+		for (int i = 0; i < totalMove; i++) {
+			auto newLocation = positionComponent->position.lock();
+			auto newLoc = newLocation->nextLocation.lock();
+			auto newBoardLoc = boardLocationMapper.get(newLoc);
 
-		newLocation = nullptr;
-		newLoc = nullptr;
+			newLocation = nullptr;
+			newLoc = nullptr;
 
-		positionComponent->position = std::shared_ptr<BoardLocation>(newBoardLoc);
-		stinkingRich::LocationType &type = newBoardLoc->details.type;
+			positionComponent->position = std::shared_ptr<BoardLocation>(newBoardLoc);
+			stinkingRich::LocationType &type = newBoardLoc->details.type;
 
-		if (type == stinkingRich::LocationType::GO) {
-			std::cout << "GO: Money changed by " << newBoardLoc->details.value.toString() << ".\n";
-			playerComponent->addMoney(newBoardLoc->details.value);
-		}
-
-		if (i == (totalMove - 1)) {
-			if (type == stinkingRich::LocationType::INCOME_TAX
-					|| type == stinkingRich::LocationType::SUPER_TAX) {
-				std::cout << "Tax: Money changed by " << newBoardLoc->details.value.toString()
+			if (type == stinkingRich::LocationType::GO) {
+				std::cout << "GO: Money changed by " << newBoardLoc->details.value.toString()
 						<< ".\n";
-
 				playerComponent->addMoney(newBoardLoc->details.value);
-			} else if (type == stinkingRich::LocationType::PROPERTY) {
-				std::cout << "Landed on " << newBoardLoc->details.name << ".\n";
-			} else if (type == stinkingRich::LocationType::GO_TO_JAIL) {
-				jailPlayer();
-				retVal = false;
-			} else if (type == stinkingRich::LocationType::CHANCE) {
-				auto card = stinkingRich::StinkingRich::chanceCards.getTopCard();
-				std::cout << "Drew \"" << card.text << "\".\n";
-				card.doEffect();
-			} else if (type == stinkingRich::LocationType::COMMUNITY_CHEST) {
-				auto card = stinkingRich::StinkingRich::communityChestCards.getTopCard();
-
-				std::cout << "Drew \"" << card.text << "\".\n";
-				std::cout.flush();
-
-				card.doEffect();
 			}
-		}
 
-		newLoc = nullptr;
+			if (i == (totalMove - 1)) {
+				if (type == stinkingRich::LocationType::INCOME_TAX
+						|| type == stinkingRich::LocationType::SUPER_TAX) {
+					std::cout << "Tax: Money changed by " << newBoardLoc->details.value.toString()
+							<< ".\n";
+
+					playerComponent->addMoney(newBoardLoc->details.value);
+				} else if (type == stinkingRich::LocationType::PROPERTY) {
+					std::cout << "Landed on " << newBoardLoc->details.name << ".\n";
+				} else if (type == stinkingRich::LocationType::GO_TO_JAIL) {
+					jailPlayer();
+					retVal = false;
+				} else if (type == stinkingRich::LocationType::CHANCE) {
+					auto card = stinkingRich::StinkingRich::chanceCards.getTopCard();
+					std::cout << "Drew \"" << card.text << "\".\n";
+					card.doEffect();
+				} else if (type == stinkingRich::LocationType::COMMUNITY_CHEST) {
+					auto card = stinkingRich::StinkingRich::communityChestCards.getTopCard();
+
+					std::cout << "Drew \"" << card.text << "\".\n";
+					std::cout.flush();
+
+					card.doEffect();
+				}
+			}
+
+			newLoc = nullptr;
+		}
 	}
 
 	std::cout.flush();
@@ -141,5 +156,7 @@ bool stinkingRich::InputSystem::doMove() {
 
 void stinkingRich::InputSystem::jailPlayer() {
 	std::cout << "You're goin' to JAIL.\n";
-	std::cerr << "NYI\n";
+	const auto &player = stinkingRich::StinkingRich::currentPlayer.lock();
+
+	ashley::ComponentMapper<Player>::getMapper().get(player)->jail();
 }

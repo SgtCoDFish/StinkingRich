@@ -12,6 +12,7 @@
 
 #include "Ashley/AshleyCore.hpp"
 
+#include "util/MoneyType.hpp"
 #include "StinkingRichConstants.hpp"
 #include "StinkingRich.hpp"
 #include "components/Player.hpp"
@@ -44,7 +45,7 @@ std::vector<stinkingRich::Card> stinkingRich::Card::getAllChanceCards() {
 	vals.emplace_back("Your annuity matures; collect <CURR>150.",
 			[]() {changeMoney(MoneyType(150,0));});
 
-	vals.emplace_back("Get out of jail free!", []() {getOutOfJailFree();});
+//	vals.emplace_back("Get out of jail free!", []() {getOutOfJailFree();});
 
 	vals.emplace_back("Advance to Trafalgar Sqaure.\nIf you pass \"Go\" collect <CURR>200.",
 			[]() {moveToTrafalgarSquare();});
@@ -52,7 +53,7 @@ std::vector<stinkingRich::Card> stinkingRich::Card::getAllChanceCards() {
 	vals.emplace_back("Take a trip to Marylebone Station.\nIf you pass \"Go\" collect <CURR>200.",
 			[]() {moveToMaryleboneStation();});
 
-	vals.emplace_back("Advance to Pall Mall.\n If you pass \"Go\" collect <CURR>200.",
+	vals.emplace_back("Advance to Pall Mall.\nIf you pass \"Go\" collect <CURR>200.",
 			[]() {moveToPallMall();});
 
 	vals.emplace_back("Drunk in charge. Pay <CURR>20.", []() {changeMoney(MoneyType(20,0));});
@@ -93,7 +94,7 @@ std::vector<stinkingRich::Card> stinkingRich::Card::getAllCommunityChestCards() 
 	vals.emplace_back("Receive interest on 7% preference shares; collect <CURR>25.",
 			[]() {changeMoney(MoneyType(25,0));});
 
-	vals.emplace_back("Get out of Jail Free.", []() {getOutOfJailFree();});
+//	vals.emplace_back("Get out of Jail Free.", []() {getOutOfJailFree();});
 
 	vals.emplace_back("Advance to \"Go\".", []() {moveToGo();});
 
@@ -124,21 +125,21 @@ std::vector<stinkingRich::Card> stinkingRich::Card::getAllCommunityChestCards() 
 
 	for (const auto &entry : vals) {
 		std::string text = std::string(entry.first);
-			const auto &doFunc = entry.second;
+		const auto &doFunc = entry.second;
 
-			const std::string currString = "<CURR>";
+		const std::string currString = "<CURR>";
 
-			auto pos = text.find(currString);
-			if (pos != text.npos) {
-				//	text = text.replace(pos, currString.length(), stinkingRich::constants::currencySymbol);
-				// note using the above causes a segfault because of static order initialisation
-				// could be fixed by changing stinkingRich::constants from a namespace into a class
-				// with "create on first access" semantics.
-				text = text.replace(pos, currString.length(), std::string("£"));
-			}
+		auto pos = text.find(currString);
+		if (pos != text.npos) {
+			//	text = text.replace(pos, currString.length(), stinkingRich::constants::currencySymbol);
+			// note using the above causes a segfault because of static order initialisation
+			// could be fixed by changing stinkingRich::constants from a namespace into a class
+			// with "create on first access" semantics.
+			text = text.replace(pos, currString.length(), std::string("£"));
+		}
 
-			retVal.emplace_back(CardType::CHANCE, std::string(text), doFunc);
-			std::cout << "Added " << retVal.back().text << "\n";
+		retVal.emplace_back(CardType::CHANCE, std::string(text), doFunc);
+		std::cout << "Added " << retVal.back().text << "\n";
 	}
 
 	return retVal;
@@ -232,27 +233,129 @@ void stinkingRich::Card::moveToGo() {
 }
 
 void stinkingRich::Card::moveToMayfair() {
+	auto playerEntity = stinkingRich::StinkingRich::currentPlayer.lock();
+	auto positionComponent = ashley::ComponentMapper<stinkingRich::Position>::getMapper().get(
+			playerEntity);
+	auto playerComponent = ashley::ComponentMapper<stinkingRich::Player>::getMapper().get(
+			playerEntity);
 
+	auto posDetails = positionComponent->position.lock();
+
+	while (true) {
+		auto nextEntity = posDetails->nextLocation.lock();
+		posDetails = ashley::ComponentMapper<BoardLocation>::getMapper().get(nextEntity);
+		positionComponent->position = std::weak_ptr<stinkingRich::BoardLocation>(posDetails);
+
+		if (posDetails->details.group == PropertyGroup::DARK_BLUE) {
+			if (posDetails->details.value == MoneyType(400, 0)) {
+				break;
+			}
+		}
+	}
 }
 
 void stinkingRich::Card::moveToTrafalgarSquare() {
+	auto playerEntity = stinkingRich::StinkingRich::currentPlayer.lock();
+	auto positionComponent = ashley::ComponentMapper<stinkingRich::Position>::getMapper().get(
+			playerEntity);
+	auto playerComponent = ashley::ComponentMapper<stinkingRich::Player>::getMapper().get(
+			playerEntity);
 
+	auto posDetails = positionComponent->position.lock();
+
+	while (true) {
+		auto nextEntity = posDetails->nextLocation.lock();
+		posDetails = ashley::ComponentMapper<BoardLocation>::getMapper().get(nextEntity);
+		positionComponent->position = std::weak_ptr<stinkingRich::BoardLocation>(posDetails);
+
+		if (posDetails->details.group == PropertyGroup::RED) {
+			if (posDetails->details.value == MoneyType(240, 0)) {
+				break;
+			}
+		}
+	}
 }
 
 void stinkingRich::Card::moveToPallMall() {
+	auto playerEntity = stinkingRich::StinkingRich::currentPlayer.lock();
+	auto positionComponent = ashley::ComponentMapper<stinkingRich::Position>::getMapper().get(
+			playerEntity);
+	auto playerComponent = ashley::ComponentMapper<stinkingRich::Player>::getMapper().get(
+			playerEntity);
 
+	auto posDetails = positionComponent->position.lock();
+
+	while (true) {
+		auto nextEntity = posDetails->nextLocation.lock();
+		posDetails = ashley::ComponentMapper<BoardLocation>::getMapper().get(nextEntity);
+		positionComponent->position = std::weak_ptr<stinkingRich::BoardLocation>(posDetails);
+
+		if (posDetails->details.group == PropertyGroup::MAGENTA) {
+			// works because pall mall is first in group, but brittle
+			// TODO: Make this less brittle
+			break;
+		}
+	}
 }
 
 void stinkingRich::Card::moveToMaryleboneStation() {
+	auto playerEntity = stinkingRich::StinkingRich::currentPlayer.lock();
+	auto positionComponent = ashley::ComponentMapper<stinkingRich::Position>::getMapper().get(
+			playerEntity);
+	auto playerComponent = ashley::ComponentMapper<stinkingRich::Player>::getMapper().get(
+			playerEntity);
 
+	auto posDetails = positionComponent->position.lock();
+
+	while (true) {
+		auto nextEntity = posDetails->nextLocation.lock();
+		posDetails = ashley::ComponentMapper<BoardLocation>::getMapper().get(nextEntity);
+		positionComponent->position = std::weak_ptr<stinkingRich::BoardLocation>(posDetails);
+
+		if (posDetails->details.group == PropertyGroup::STATION) {
+			if (posDetails->details.name.substr(0, 4).compare("Mary") == 0) {
+				break;
+			}
+		}
+	}
 }
 
 void stinkingRich::Card::moveBackToOldKentRoad() {
+	auto playerEntity = stinkingRich::StinkingRich::currentPlayer.lock();
+	auto positionComponent = ashley::ComponentMapper<stinkingRich::Position>::getMapper().get(
+			playerEntity);
+	auto playerComponent = ashley::ComponentMapper<stinkingRich::Player>::getMapper().get(
+			playerEntity);
 
+	auto posDetails = positionComponent->position.lock();
+
+	while (true) {
+		auto prevEntity = posDetails->prevLocation.lock();
+		posDetails = ashley::ComponentMapper<BoardLocation>::getMapper().get(prevEntity);
+		positionComponent->position = std::weak_ptr<stinkingRich::BoardLocation>(posDetails);
+
+		if (posDetails->details.group == PropertyGroup::BROWN) {
+			if (posDetails->details.name.substr(0, 3).compare(std::string("Old")) == 0) {
+				break;
+			}
+		}
+	}
 }
 
 void stinkingRich::Card::moveBackThreeSpaces() {
+	auto playerEntity = stinkingRich::StinkingRich::currentPlayer.lock();
+	auto positionComponent = ashley::ComponentMapper<stinkingRich::Position>::getMapper().get(
+			playerEntity);
+	auto playerComponent = ashley::ComponentMapper<stinkingRich::Player>::getMapper().get(
+			playerEntity);
 
+	auto posDetails = positionComponent->position.lock();
+
+	for (int i = 0; i < 3; i++) {
+		auto prevEntity = posDetails->prevLocation.lock();
+		posDetails = ashley::ComponentMapper<BoardLocation>::getMapper().get(prevEntity);
+		positionComponent->position = std::weak_ptr<stinkingRich::BoardLocation>(posDetails);
+	}
 }
 
 void stinkingRich::Card::getOutOfJailFree() {
@@ -260,5 +363,9 @@ void stinkingRich::Card::getOutOfJailFree() {
 }
 
 void stinkingRich::Card::jailPlayer() {
+	auto playerEntity = stinkingRich::StinkingRich::currentPlayer.lock();
+	auto playerComponent = ashley::ComponentMapper<stinkingRich::Player>::getMapper().get(
+			playerEntity);
 
+	playerComponent->jail();
 }

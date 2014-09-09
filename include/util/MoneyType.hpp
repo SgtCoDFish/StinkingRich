@@ -71,6 +71,8 @@ public:
 };
 
 std::ostream &operator<<(std::ostream &os, const MoneyType &money);
+bool operator==(MoneyType &one, MoneyType other);
+bool operator!=(MoneyType &one, MoneyType other);
 
 }
 
