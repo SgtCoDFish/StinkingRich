@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "Ashley/core/Engine.hpp"
 #include "Ashley/core/Entity.hpp"
@@ -21,6 +22,8 @@ namespace stinkingRich {
 class StinkingRich {
 private:
 	static const int BOARD_LOCATION_COUNT = 40;
+
+	static bool _nextPlayer;
 
 	SDL_Window *window;
 
@@ -35,8 +38,7 @@ private:
 	};
 
 	std::shared_ptr<ashley::Entity> go = nullptr;
-
-//	std::vector<std::shared_ptr<ashley::Entity>> players;
+//	std::vector<std::shared_ptr<ashley::Entity>> *players = nullptr;
 
 	void initBoard();
 public:
@@ -45,6 +47,8 @@ public:
 
 	static int32_t leftGap;
 	static int32_t topGap;
+
+	static std::weak_ptr<ashley::Entity> currentPlayer;
 
 	StinkingRich();
 	~StinkingRich();
@@ -58,6 +62,8 @@ public:
 	void init();
 	bool update(float deltaTime);
 	void close();
+
+	static void nextPlayer();
 };
 
 }

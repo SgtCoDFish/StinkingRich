@@ -33,9 +33,11 @@ void stinkingRich::PieceRenderSystem::processEntity(std::shared_ptr<ashley::Enti
 	const auto &renderable = ashley::ComponentMapper<Renderable>::getMapper().get(ptr);
 
 	//TODO: fix ignoring big sizes here
-	const glm::ivec2 pos = p->position->getWindowPosition(stinkingRich::StinkingRich::leftGap,
+	auto posPtr =  p->position.lock();
+	const glm::ivec2 pos = posPtr->getWindowPosition(stinkingRich::StinkingRich::leftGap,
 			stinkingRich::StinkingRich::topGap, stinkingRich::constants::smallLocationWidth,
 			stinkingRich::constants::smallLocationHeight);
+	posPtr = nullptr;
 
 	const SDL_Rect rect = { pos.x, pos.y, renderable->w, renderable->h };
 

@@ -7,6 +7,7 @@
 
 #include <cstdlib>
 #include <cmath>
+#include <ctime>
 
 #include <iostream>
 #include <vector>
@@ -22,13 +23,13 @@
 using namespace stinkingRich;
 
 int main(int argc, char **argv) {
-
+	std::srand(std::time(nullptr));
 
 	std::unique_ptr<StinkingRich> game = nullptr;
 
 	try {
 		game = std::make_unique<StinkingRich>();
-	} catch(stinkingRich::InitException &ie) {
+	} catch (stinkingRich::InitException &ie) {
 		std::cerr << "Caught InitException, failing.\n";
 		return EXIT_FAILURE;
 	}
@@ -37,11 +38,12 @@ int main(int argc, char **argv) {
 
 	bool done = false;
 
-	auto startTime = std::chrono::system_clock::now();
+	auto startTime = std::chrono::high_resolution_clock::now();
 	while (!done) {
-		auto timeNow = std::chrono::system_clock::now();
-		auto deltaTime =
-				std::chrono::duration_cast<std::chrono::seconds>(timeNow - startTime).count();
+		auto timeNow = std::chrono::high_resolution_clock::now();
+		float deltaTime =
+				std::chrono::duration_cast<std::chrono::milliseconds>(timeNow - startTime).count() / 1000.0f;
+
 		startTime = timeNow;
 
 		done = game->update(deltaTime);

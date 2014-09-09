@@ -21,12 +21,12 @@ stinkingRich::Renderable::Renderable(SDL_Texture *tex) : index(nextIndex++), tex
 	this->w = w;
 	this->h = h;
 
-	std::cout << "Constructed Renderable #" << index << ".\n";
+//	std::cout << "Constructed Renderable #" << index << ".\n";
 }
 
 stinkingRich::Renderable::~Renderable() {
 	if(texture != nullptr) {
-		std::cout << "Freeing renderable #" << index << std::endl;
+//		std::cout << "Freeing renderable #" << index << std::endl;
 		SDL_DestroyTexture(texture);
 		texture = nullptr;
 	}

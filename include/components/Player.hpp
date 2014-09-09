@@ -25,20 +25,43 @@ public:
 	const uint64_t id;
 	SDL_Color color;
 
-	Player() : Player({0xFF, 0x00, 0x00, 0x00}) {}
-	Player(SDL_Color color) : id(nextID++), color(color), balance(constants::startingMoney)  {}
+	Player() :
+			Player( { 0xFF, 0x00, 0x00, 0x00 }) {
+	}
 
+	Player(SDL_Color color) :
+			id(nextID++), color(color), balance(constants::startingMoney), doublesRolled(0), turnsLeftInJail(
+					0) {
+		made++;
+	}
+	~Player() {
+		made--;
+	}
 
-
-	void addMoney(Money &amount);
-	void removeMoney(Money &amount);
+	void addMoney(Money amount);
+	void removeMoney(Money amount);
 
 	const std::string getBalance() const;
 
+	void rolledDouble();
+	void spentTurnInJail();
+
+	int8_t getTurnsLeftInJail() const;
+	int8_t getDoublesRolled() const;
+
+	/**
+	 * @return the total number of created Player
+	 */
+	static int64_t getTotalPlayerCount();
+
 private:
 	static uint64_t nextID;
+	static int64_t made;
 
 	Money balance;
+
+	int doublesRolled;
+	int turnsLeftInJail;
 };
 
 }

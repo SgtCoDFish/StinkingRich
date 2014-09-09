@@ -350,6 +350,7 @@ std::vector<std::shared_ptr<ashley::Entity>> stinkingRich::BoardLocationDetails:
 
 		case LocationType::JUST_VISITING: {
 			renderText("Just Visiting!");
+			e->add<JailLocation>();
 			break;
 		}
 

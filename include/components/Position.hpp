@@ -9,6 +9,7 @@
 #define POSITION_HPP_
 
 #include <cstdint>
+#include <memory>
 
 #include "components/BoardLocation.hpp"
 
@@ -16,9 +17,9 @@ namespace stinkingRich {
 
 class Position : public ashley::Component {
 public:
-	std::shared_ptr<BoardLocation> position;
+	std::weak_ptr<BoardLocation> position = std::shared_ptr<BoardLocation>(nullptr);
 
-	Position(std::shared_ptr<BoardLocation> pos) : position(pos) {}
+	Position(std::shared_ptr<BoardLocation> pos) : position(std::weak_ptr<BoardLocation>(pos)) {}
 };
 
 }
