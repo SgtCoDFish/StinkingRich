@@ -11,12 +11,14 @@
 #include <cstdint>
 
 #include <string>
+#include <memory>
 
 #include <SDL2/SDL.h>
 
 #include "Ashley/core/Component.hpp"
 
 #include "StinkingRichConstants.hpp"
+#include "components/Position.hpp"
 
 namespace stinkingRich {
 
@@ -60,6 +62,8 @@ public:
 
 	int8_t getTurnsLeftInJail() const;
 	int8_t getDoublesRolled() const;
+
+	void handleMoveResult(std::shared_ptr<Position>& pos);
 
 	/**
 	 * @return the total number of created Player

@@ -58,6 +58,33 @@ int8_t stinkingRich::Player::getDoublesRolled() const {
 	return doublesRolled;
 }
 
+void stinkingRich::Player::handleMoveResult(std::shared_ptr<stinkingRich::Position> &pos) {
+	const auto &boardLoc = pos->position.lock();
+	stinkingRich::LocationType &type = boardLoc->details.type;
+
+	if (type == stinkingRich::LocationType::INCOME_TAX
+			|| type == stinkingRich::LocationType::SUPER_TAX) {
+		std::cout << "Tax: Money changed by " << boardLoc->details.value.toString() << ".\n";
+
+		addMoney(boardLoc->details.value);
+	} else if (type == stinkingRich::LocationType::PROPERTY) {
+		std::cout << "Landed on " << boardLoc->details.name << ".\n";
+	} else if (type == stinkingRich::LocationType::GO_TO_JAIL) {
+		jail();
+	} else if (type == stinkingRich::LocationType::CHANCE) {
+		auto card = stinkingRich::StinkingRich::chanceCards.getTopCard();
+		std::cout << "Drew \"" << card.text << "\".\n";
+		card.doEffect();
+	} else if (type == stinkingRich::LocationType::COMMUNITY_CHEST) {
+		auto card = stinkingRich::StinkingRich::communityChestCards.getTopCard();
+
+		std::cout << "Drew \"" << card.text << "\".\n";
+		std::cout.flush();
+
+		card.doEffect();
+	}
+}
+
 void stinkingRich::Player::jail() {
 	turnsLeftInJail = 3;
 

@@ -227,6 +227,8 @@ void stinkingRich::Card::moveToGo() {
 		positionComponent->position = std::weak_ptr<stinkingRich::BoardLocation>(posDetails);
 
 		if (posDetails->details.type == LocationType::GO) {
+			std::cout << "GO: Money changed by " << posDetails->details.value.toString() << ".\n";
+			playerComponent->addMoney(posDetails->details.value);
 			break;
 		}
 	}
@@ -252,6 +254,8 @@ void stinkingRich::Card::moveToMayfair() {
 			}
 		}
 	}
+
+	playerComponent->handleMoveResult(positionComponent);
 }
 
 void stinkingRich::Card::moveToTrafalgarSquare() {
@@ -268,12 +272,19 @@ void stinkingRich::Card::moveToTrafalgarSquare() {
 		posDetails = ashley::ComponentMapper<BoardLocation>::getMapper().get(nextEntity);
 		positionComponent->position = std::weak_ptr<stinkingRich::BoardLocation>(posDetails);
 
+		if (posDetails->details.type == stinkingRich::LocationType::GO) {
+			std::cout << "GO: Money changed by " << posDetails->details.value.toString() << ".\n";
+			playerComponent->addMoney(posDetails->details.value);
+		}
+
 		if (posDetails->details.group == PropertyGroup::RED) {
 			if (posDetails->details.value == MoneyType(240, 0)) {
 				break;
 			}
 		}
 	}
+
+	playerComponent->handleMoveResult(positionComponent);
 }
 
 void stinkingRich::Card::moveToPallMall() {
@@ -290,12 +301,19 @@ void stinkingRich::Card::moveToPallMall() {
 		posDetails = ashley::ComponentMapper<BoardLocation>::getMapper().get(nextEntity);
 		positionComponent->position = std::weak_ptr<stinkingRich::BoardLocation>(posDetails);
 
+		if (posDetails->details.type == stinkingRich::LocationType::GO) {
+			std::cout << "GO: Money changed by " << posDetails->details.value.toString() << ".\n";
+			playerComponent->addMoney(posDetails->details.value);
+		}
+
 		if (posDetails->details.group == PropertyGroup::MAGENTA) {
 			// works because pall mall is first in group, but brittle
 			// TODO: Make this less brittle
 			break;
 		}
 	}
+
+	playerComponent->handleMoveResult(positionComponent);
 }
 
 void stinkingRich::Card::moveToMaryleboneStation() {
@@ -312,12 +330,19 @@ void stinkingRich::Card::moveToMaryleboneStation() {
 		posDetails = ashley::ComponentMapper<BoardLocation>::getMapper().get(nextEntity);
 		positionComponent->position = std::weak_ptr<stinkingRich::BoardLocation>(posDetails);
 
+		if (posDetails->details.type == stinkingRich::LocationType::GO) {
+			std::cout << "GO: Money changed by " << posDetails->details.value.toString() << ".\n";
+			playerComponent->addMoney(posDetails->details.value);
+		}
+
 		if (posDetails->details.group == PropertyGroup::STATION) {
 			if (posDetails->details.name.substr(0, 4).compare("Mary") == 0) {
 				break;
 			}
 		}
 	}
+
+	playerComponent->handleMoveResult(positionComponent);
 }
 
 void stinkingRich::Card::moveBackToOldKentRoad() {
@@ -340,6 +365,8 @@ void stinkingRich::Card::moveBackToOldKentRoad() {
 			}
 		}
 	}
+
+	playerComponent->handleMoveResult(positionComponent);
 }
 
 void stinkingRich::Card::moveBackThreeSpaces() {
@@ -356,6 +383,8 @@ void stinkingRich::Card::moveBackThreeSpaces() {
 		posDetails = ashley::ComponentMapper<BoardLocation>::getMapper().get(prevEntity);
 		positionComponent->position = std::weak_ptr<stinkingRich::BoardLocation>(posDetails);
 	}
+
+	playerComponent->handleMoveResult(positionComponent);
 }
 
 void stinkingRich::Card::getOutOfJailFree() {

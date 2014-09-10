@@ -72,6 +72,7 @@ public:
 	bool update(float deltaTime);
 	void close();
 
+
 	static void nextPlayer();
 
 	static inline int64_t getRand(int64_t min, int64_t max) {

@@ -120,29 +120,7 @@ bool stinkingRich::InputSystem::doMove() {
 			}
 
 			if (i == (totalMove - 1)) {
-				if (type == stinkingRich::LocationType::INCOME_TAX
-						|| type == stinkingRich::LocationType::SUPER_TAX) {
-					std::cout << "Tax: Money changed by " << newBoardLoc->details.value.toString()
-							<< ".\n";
-
-					playerComponent->addMoney(newBoardLoc->details.value);
-				} else if (type == stinkingRich::LocationType::PROPERTY) {
-					std::cout << "Landed on " << newBoardLoc->details.name << ".\n";
-				} else if (type == stinkingRich::LocationType::GO_TO_JAIL) {
-					jailPlayer();
-					retVal = false;
-				} else if (type == stinkingRich::LocationType::CHANCE) {
-					auto card = stinkingRich::StinkingRich::chanceCards.getTopCard();
-					std::cout << "Drew \"" << card.text << "\".\n";
-					card.doEffect();
-				} else if (type == stinkingRich::LocationType::COMMUNITY_CHEST) {
-					auto card = stinkingRich::StinkingRich::communityChestCards.getTopCard();
-
-					std::cout << "Drew \"" << card.text << "\".\n";
-					std::cout.flush();
-
-					card.doEffect();
-				}
+				playerComponent->handleMoveResult(positionComponent);
 			}
 
 			newLoc = nullptr;
@@ -150,6 +128,10 @@ bool stinkingRich::InputSystem::doMove() {
 	}
 
 	std::cout.flush();
+
+	if(playerComponent->isJailed()) {
+		retVal = false;
+	}
 
 	return retVal;
 }
