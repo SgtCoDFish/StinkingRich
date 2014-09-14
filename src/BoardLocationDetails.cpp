@@ -20,6 +20,7 @@
 #include "BoardLocationDetails.hpp"
 #include "util/MoneyType.hpp"
 
+#include "StinkingRich.hpp"
 #include "StinkingRichConstants.hpp"
 #include "components/BoardLocation.hpp"
 #include "components/Renderable.hpp"
@@ -201,7 +202,7 @@ std::vector<stinkingRich::BoardLocationDetails> stinkingRich::BoardLocationDetai
 }
 
 std::vector<std::shared_ptr<ashley::Entity>> stinkingRich::BoardLocationDetails::getAllBoardEntities(
-		SDL_Renderer *renderer, TTF_Font *font) {
+		SDL_Renderer *renderer) {
 	auto locs = getAllLocationDetails();
 
 	if (locs.size() == 0) {
@@ -269,8 +270,9 @@ std::vector<std::shared_ptr<ashley::Entity>> stinkingRich::BoardLocationDetails:
 				SDL_MapRGBA(surfaceTemp->format, 0xFF, 0xFF, 0xFF, 0xFF));
 
 		auto renderText =
-				[&](const char *text) {SDL_Surface *textSurface = TTF_RenderUTF8_Blended_Wrapped(font, text, {0x00, 0x00, 0x00, 0xFF}, surfaceTemp->w);
-					SDL_BlitSurface(textSurface, nullptr, surfaceTemp, nullptr);};
+				[&](const char *text) {SDL_Surface *textSurface = TTF_RenderUTF8_Blended_Wrapped(stinkingRich::StinkingRich::getTextRenderer()->getFont(), text, {0x00, 0x00, 0x00, 0xFF}, surfaceTemp->w);
+					SDL_BlitSurface(textSurface, nullptr, surfaceTemp, nullptr);
+					SDL_FreeSurface(textSurface);};
 
 		if (surfaceTemp == nullptr) {
 			std::cerr << "Could not create surface while loading all entities:\n" << SDL_GetError()

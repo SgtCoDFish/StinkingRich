@@ -20,11 +20,15 @@
 
 #include "Ashley/AshleyCore.hpp"
 
-#include "StinkingRich.hpp"
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_ttf.h"
+
 #include "BoardLocationDetails.hpp"
+#include "StinkingRich.hpp"
 #include "components/AllComponents.hpp"
 #include "systems/AllSystems.hpp"
 #include "util/InitException.hpp"
+#include "util/TextRenderer.hpp"
 
 class GoLocation;
 
@@ -40,6 +44,7 @@ int32_t stinkingRich::StinkingRich::topGap = -1;
 bool stinkingRich::StinkingRich::_nextPlayer = false;
 std::mt19937_64 stinkingRich::StinkingRich::randomEngine = std::mt19937_64(std::random_device().operator ()());
 
+std::unique_ptr<stinkingRich::TextRenderer> stinkingRich::StinkingRich::textRenderer = nullptr;
 std::shared_ptr<UIRenderSystem> stinkingRich::StinkingRich::uiRenderSystem = nullptr;
 
 std::weak_ptr<ashley::Entity> stinkingRich::StinkingRich::currentPlayer = std::shared_ptr<
@@ -84,6 +89,8 @@ stinkingRich::StinkingRich::StinkingRich() :
 		throw stinkingRich::InitException("TTF_Init");
 	}
 
+	textRenderer = std::make_unique<stinkingRich::TextRenderer>("assets/RobotoRegular.ttf", 10);
+
 	windowWidth = 1280;
 	windowHeight = 768;
 
@@ -111,6 +118,7 @@ stinkingRich::StinkingRich::StinkingRich() :
 
 stinkingRich::StinkingRich::~StinkingRich() {
 	currentPlayer = std::shared_ptr<ashley::Entity>(nullptr);
+	textRenderer = nullptr;
 //	players = nullptr;
 	go = nullptr;
 	engine.removeAllEntities();
@@ -118,9 +126,7 @@ stinkingRich::StinkingRich::~StinkingRich() {
 }
 
 void stinkingRich::StinkingRich::initBoard() {
-	TTF_Font *font = TTF_OpenFont("assets/RobotoRegular.ttf", 10);
-
-	auto ents = stinkingRich::BoardLocationDetails::getAllBoardEntities(renderer, font);
+	auto ents = stinkingRich::BoardLocationDetails::getAllBoardEntities(renderer);
 
 	for (auto e : ents) {
 		engine.addEntity(e);
@@ -133,8 +139,6 @@ void stinkingRich::StinkingRich::initBoard() {
 	}
 
 	go = std::shared_ptr<ashley::Entity>(goEnts->at(0));
-
-	TTF_CloseFont(font);
 }
 
 void stinkingRich::StinkingRich::init() {

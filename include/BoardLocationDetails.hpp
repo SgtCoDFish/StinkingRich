@@ -13,7 +13,6 @@
 #include <memory>
 
 #include "SDL2/SDL.h"
-#include "SDL2/SDL_ttf.h"
 
 #include "Ashley/core/Entity.hpp"
 
@@ -58,7 +57,7 @@ public:
 	 * @param font the font to render with.
 	 * @return an std::vector of all the entities for the board if successful, or an empty std::vector if the function failed.
 	 */
-	static std::vector<std::shared_ptr<ashley::Entity>> getAllBoardEntities(SDL_Renderer *renderer, TTF_Font *font);
+	static std::vector<std::shared_ptr<ashley::Entity>> getAllBoardEntities(SDL_Renderer *renderer);
 };
 
 }

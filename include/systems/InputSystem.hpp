@@ -10,6 +10,7 @@
 
 #include <cstdint>
 
+#include "Ashley/core/Engine.hpp"
 #include "Ashley/core/EntitySystem.hpp"
 
 namespace stinkingRich {
@@ -19,12 +20,17 @@ class InputSystem : public ashley::EntitySystem {
 
 	const uint8_t *keyStates = nullptr;
 
+	ashley::Engine *engine = nullptr;
+
 	float pressCooldown = -1.0f;
 
 	bool doMove();
 	void jailPlayer();
 public:
 	InputSystem(uint64_t priority);
+
+	void addedToEngine(ashley::Engine &e) override;
+	void removedFromEngine(ashley::Engine &e) override;
 
 	void update(float deltaTime) override;
 

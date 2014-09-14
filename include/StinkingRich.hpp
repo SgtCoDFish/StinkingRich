@@ -8,24 +8,32 @@
 #ifndef STINKINGRICHMAIN_HPP_
 #define STINKINGRICHMAIN_HPP_
 
-#include <vector>
-#include <string>
+#include <cstdint>
+
 #include <memory>
 #include <random>
-
-#include "Ashley/core/Engine.hpp"
-#include "Ashley/core/Entity.hpp"
+#include <vector>
 
 #include "SDL2/SDL.h"
 
+#include "Ashley/core/Engine.hpp"
+
 #include "cards/Card.hpp"
 #include "systems/UIRenderSystem.hpp"
+#include "util/TextRenderer.hpp"
+
+struct SDL_Renderer;
+namespace ashley {
+class Entity;
+}
 
 namespace stinkingRich {
 
 class StinkingRich {
 private:
 	static const int BOARD_LOCATION_COUNT = 40;
+
+	static std::unique_ptr<stinkingRich::TextRenderer> textRenderer;
 
 	static std::mt19937_64 randomEngine;
 
@@ -48,13 +56,13 @@ private:
 	void initBoard();
 	bool handleNextPlayer();
 public:
-	static std::shared_ptr<stinkingRich::UIRenderSystem> uiRenderSystem;
-
 	static int32_t windowWidth;
 	static int32_t windowHeight;
 
 	static int32_t leftGap;
 	static int32_t topGap;
+
+	static std::shared_ptr<stinkingRich::UIRenderSystem> uiRenderSystem;
 
 	static std::weak_ptr<ashley::Entity> currentPlayer;
 	static std::vector<std::weak_ptr<ashley::Entity>> allPlayers;
@@ -83,6 +91,10 @@ public:
 
 	static inline std::mt19937_64 &getRandEngine() {
 		return randomEngine;
+	}
+
+	static inline TextRenderer *getTextRenderer() {
+		return textRenderer.get();
 	}
 };
 

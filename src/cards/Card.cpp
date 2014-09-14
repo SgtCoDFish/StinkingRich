@@ -74,7 +74,7 @@ std::vector<stinkingRich::Card> stinkingRich::Card::getAllChanceCards() {
 		}
 
 		retVal.emplace_back(CardType::CHANCE, std::string(text), doFunc);
-		std::cout << "Added " << retVal.back().text << "\n";
+//		std::cout << "Added " << retVal.back().text << "\n";
 	}
 
 	return retVal;
@@ -139,7 +139,7 @@ std::vector<stinkingRich::Card> stinkingRich::Card::getAllCommunityChestCards() 
 		}
 
 		retVal.emplace_back(CardType::CHANCE, std::string(text), doFunc);
-		std::cout << "Added " << retVal.back().text << "\n";
+//		std::cout << "Added " << retVal.back().text << "\n";
 	}
 
 	return retVal;

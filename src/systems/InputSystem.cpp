@@ -20,10 +20,23 @@
 #include "components/Player.hpp"
 #include "components/Position.hpp"
 #include "components/BoardLocation.hpp"
+#include "components/MouseListener.hpp"
 #include "systems/InputSystem.hpp"
 
 stinkingRich::InputSystem::InputSystem(uint64_t priority) :
 		EntitySystem(priority) {
+}
+
+void stinkingRich::InputSystem::addedToEngine(ashley::Engine &e) {
+	ashley::EntitySystem::addedToEngine(e);
+
+	this->engine = &e;
+}
+
+void stinkingRich::InputSystem::removedFromEngine(ashley::Engine &e) {
+	ashley::EntitySystem::removedFromEngine(e);
+
+	this->engine = nullptr;
 }
 
 void stinkingRich::InputSystem::update(float deltaTime) {
@@ -33,25 +46,49 @@ void stinkingRich::InputSystem::update(float deltaTime) {
 
 	keyStates = SDL_GetKeyboardState(nullptr);
 
+	int mouseX = 0;
+	int mouseY = 0;
+	auto buttons = SDL_GetMouseState(&mouseX, &mouseY);
+
 	if (pressCooldown < 0.0f) {
 		pressCooldown = -1.0f;
 
-		if (keyStates[SDL_SCANCODE_SPACE]) {
-			if (!doMove()) {
-				stinkingRich::StinkingRich::nextPlayer();
-			}
+		if (stinkingRich::StinkingRich::uiRenderSystem->checkProcessing()) {
+			const auto mouseListeners = engine->getEntitiesFor(ashley::Family::getFor( {
+					typeid(MouseListener) }));
 
-			pressCooldown = TOTAL_PRESS_COOLDOWN;
-		} else if (keyStates[SDL_SCANCODE_F9]) {
-			auto c = stinkingRich::StinkingRich::communityChestCards.getTopCard();
-			std::cout << c.text << std::endl;
-			c.doEffect();
-			pressCooldown = TOTAL_PRESS_COOLDOWN;
-		}else if (keyStates[SDL_SCANCODE_F10]) {
-			auto c = stinkingRich::StinkingRich::chanceCards.getTopCard();
-			std::cout << c.text << std::endl;
-			c.doEffect();
-			pressCooldown = TOTAL_PRESS_COOLDOWN;
+			for (const auto &listener : *mouseListeners) {
+				const auto &ml = ashley::ComponentMapper<MouseListener>::getMapper().get(listener);
+//			const auto &message = ml->message;
+				const auto &rect = ml->rect;
+
+				if (SDL_BUTTON_LEFT & buttons) {
+					if (mouseX >= rect.x && mouseX <= rect.x + rect.w && mouseY >= rect.y
+							&& mouseY <= rect.y + rect.h) {
+						std::cout << "Got click.\n";
+						std::cout.flush();
+						pressCooldown = TOTAL_PRESS_COOLDOWN;
+					}
+				}
+			}
+		} else {
+			if (keyStates[SDL_SCANCODE_SPACE]) {
+				if (!doMove()) {
+					stinkingRich::StinkingRich::nextPlayer();
+				}
+
+				pressCooldown = TOTAL_PRESS_COOLDOWN;
+			} else if (keyStates[SDL_SCANCODE_F9]) {
+				auto c = stinkingRich::StinkingRich::communityChestCards.getTopCard();
+				std::cout << c.text << std::endl;
+				c.doEffect();
+				pressCooldown = TOTAL_PRESS_COOLDOWN;
+			} else if (keyStates[SDL_SCANCODE_F10]) {
+				auto c = stinkingRich::StinkingRich::chanceCards.getTopCard();
+				std::cout << c.text << std::endl;
+				c.doEffect();
+				pressCooldown = TOTAL_PRESS_COOLDOWN;
+			}
 		}
 	}
 }
@@ -129,7 +166,7 @@ bool stinkingRich::InputSystem::doMove() {
 
 	std::cout.flush();
 
-	if(playerComponent->isJailed()) {
+	if (playerComponent->isJailed()) {
 		retVal = false;
 	}
 
