@@ -10,6 +10,7 @@
 
 #include "PieceRenderSystem.hpp"
 #include "BoardRenderSystem.hpp"
+#include "UIRenderSystem.hpp"
 #include "InputSystem.hpp"
 
 #endif /* ALLSYSTEMS_HPP_ */

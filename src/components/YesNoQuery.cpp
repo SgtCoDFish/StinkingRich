@@ -14,7 +14,7 @@
 
 #include "components/YesNoQuery.hpp"
 
-std::shared_ptr<ashley::Entity> makeYesNoQuery(std::string queryText) {
+std::shared_ptr<ashley::Entity> stinkingRich::YesNoQuery::makeYesNoQuery(std::string queryText) {
 	auto e = std::make_shared<ashley::Entity>();
 
 	e->add<stinkingRich::YesNoQuery>(queryText);

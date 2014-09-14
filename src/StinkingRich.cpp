@@ -20,16 +20,17 @@
 
 #include "Ashley/AshleyCore.hpp"
 
+#include "StinkingRich.hpp"
 #include "BoardLocationDetails.hpp"
 #include "components/AllComponents.hpp"
 #include "systems/AllSystems.hpp"
 #include "util/InitException.hpp"
-#include "StinkingRich.hpp"
 
 class GoLocation;
 
 using namespace ashley;
 using namespace stinkingRich;
+
 
 int32_t stinkingRich::StinkingRich::windowWidth = -1;
 int32_t stinkingRich::StinkingRich::windowHeight = -1;
@@ -38,6 +39,8 @@ int32_t stinkingRich::StinkingRich::topGap = -1;
 
 bool stinkingRich::StinkingRich::_nextPlayer = false;
 std::mt19937_64 stinkingRich::StinkingRich::randomEngine = std::mt19937_64(std::random_device().operator ()());
+
+std::shared_ptr<UIRenderSystem> stinkingRich::StinkingRich::uiRenderSystem = nullptr;
 
 std::weak_ptr<ashley::Entity> stinkingRich::StinkingRich::currentPlayer = std::shared_ptr<
 		ashley::Entity>(nullptr);
@@ -59,6 +62,7 @@ bool stinkingRich::StinkingRich::update(float deltaTime) {
 		}
 	}
 
+	SDL_SetRenderDrawColor(renderer, 0x66, 0x66, 0x66, 0x66);
 	SDL_RenderClear(renderer);
 
 	engine.update(deltaTime);
@@ -99,6 +103,8 @@ stinkingRich::StinkingRich::StinkingRich() :
 		std::cerr << "Could not initialise renderer: " << SDL_GetError() << std::endl;
 		throw stinkingRich::InitException("renderer");
 	}
+
+	StinkingRich::uiRenderSystem = std::make_shared<UIRenderSystem>(renderer, 20000);
 
 	SDL_SetRenderDrawColor(renderer, 0x66, 0x66, 0x66, 0x66);
 }
@@ -159,6 +165,7 @@ void stinkingRich::StinkingRich::init() {
 	engine.addSystem(std::make_shared<InputSystem>(100));
 	engine.addSystem(std::make_shared<BoardRenderSystem>(renderer, 9000));
 	engine.addSystem(std::make_shared<PieceRenderSystem>(renderer, 10000));
+	engine.addSystem(uiRenderSystem);
 }
 
 void stinkingRich::StinkingRich::nextPlayer() {

@@ -19,6 +19,7 @@
 #include "SDL2/SDL.h"
 
 #include "cards/Card.hpp"
+#include "systems/UIRenderSystem.hpp"
 
 namespace stinkingRich {
 
@@ -47,6 +48,8 @@ private:
 	void initBoard();
 	bool handleNextPlayer();
 public:
+	static std::shared_ptr<stinkingRich::UIRenderSystem> uiRenderSystem;
+
 	static int32_t windowWidth;
 	static int32_t windowHeight;
 
@@ -71,7 +74,6 @@ public:
 	void init();
 	bool update(float deltaTime);
 	void close();
-
 
 	static void nextPlayer();
 

@@ -7,15 +7,18 @@
 
 #include <cstdint>
 
+#include <string>
+#include <sstream>
 #include <memory>
 
 #include "Ashley/core/ComponentMapper.hpp"
 
+#include "StinkingRich.hpp"
 #include "StinkingRichConstants.hpp"
 #include "components/BoardLocation.hpp"
 #include "components/Player.hpp"
 #include "components/Position.hpp"
-#include "StinkingRich.hpp"
+#include "components/YesNoQuery.hpp"
 
 using namespace stinkingRich;
 
@@ -69,6 +72,20 @@ void stinkingRich::Player::handleMoveResult(std::shared_ptr<stinkingRich::Positi
 		addMoney(boardLoc->details.value);
 	} else if (type == stinkingRich::LocationType::PROPERTY) {
 		std::cout << "Landed on " << boardLoc->details.name << ".\n";
+
+		if (boardLoc->isOwned()) {
+			std::cout << "Owned by "
+					<< ashley::ComponentMapper<Player>::getMapper().get(boardLoc->owner.lock())->id
+					<< ".\n";
+		} else {
+			std::cout << "Not owned.\n";
+
+			std::stringstream ss;
+			ss << "Would you like to purchase " << boardLoc->details.name << " for " << boardLoc->details.value.toCString() << "?";
+
+			auto e = stinkingRich::YesNoQuery::makeYesNoQuery(ss.str());
+			stinkingRich::StinkingRich::uiRenderSystem->addQuery(e);
+		}
 	} else if (type == stinkingRich::LocationType::GO_TO_JAIL) {
 		jail();
 	} else if (type == stinkingRich::LocationType::CHANCE) {

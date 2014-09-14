@@ -33,7 +33,7 @@ public:
 	std::weak_ptr<ashley::Entity> owner = std::shared_ptr<ashley::Entity>(nullptr);
 
 	inline bool isOwned() const {
-		return owner != nullptr;
+		return owner.lock() != nullptr;
 	}
 
 	glm::ivec2 getWindowPosition(int32_t xOffset, int32_t yOffset, int32_t width, int32_t height) const;
