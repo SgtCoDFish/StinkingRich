@@ -27,10 +27,16 @@ private:
 
 	ashley::Engine *engine = nullptr;
 
+	std::vector<std::shared_ptr<ashley::Entity>> addedUIEntities;
 	std::vector<SDL_Rect> boxes;
+
+	SDL_Texture *queryTexture = nullptr;
+	SDL_Texture *yesTexture = nullptr;
+	SDL_Texture *noTexture = nullptr;
 public:
 	UIRenderSystem(int priority);
 	UIRenderSystem(SDL_Renderer *renderer, int priority);
+	virtual ~UIRenderSystem();
 
 	void addedToEngine(ashley::Engine &engine) override;
 	void removedFromEngine(ashley::Engine &engine) override;
@@ -39,7 +45,8 @@ public:
 
 	void processEntity(std::shared_ptr<ashley::Entity> &entity, float deltaTime) override;
 
-	void addQuery(std::shared_ptr<ashley::Entity> e);
+	void addUIEntity(std::shared_ptr<ashley::Entity> &e);
+	void removeUIEntity();
 };
 
 }

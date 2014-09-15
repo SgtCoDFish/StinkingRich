@@ -26,6 +26,10 @@ class InputSystem : public ashley::EntitySystem {
 
 	bool doMove();
 	void jailPlayer();
+
+	void buyProperty();
+	void auctionProperty();
+
 public:
 	InputSystem(uint64_t priority);
 

@@ -45,6 +45,7 @@ bool stinkingRich::StinkingRich::_nextPlayer = false;
 std::mt19937_64 stinkingRich::StinkingRich::randomEngine = std::mt19937_64(std::random_device().operator ()());
 
 std::unique_ptr<stinkingRich::TextRenderer> stinkingRich::StinkingRich::textRenderer = nullptr;
+// the ui render system uses the text renderer so the text renderer must be initialised first.
 std::shared_ptr<UIRenderSystem> stinkingRich::StinkingRich::uiRenderSystem = nullptr;
 
 std::weak_ptr<ashley::Entity> stinkingRich::StinkingRich::currentPlayer = std::shared_ptr<

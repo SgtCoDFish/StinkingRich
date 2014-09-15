@@ -59,7 +59,7 @@ void stinkingRich::InputSystem::update(float deltaTime) {
 
 			for (const auto &listener : *mouseListeners) {
 				const auto &ml = ashley::ComponentMapper<MouseListener>::getMapper().get(listener);
-//			const auto &message = ml->message;
+				const auto &message = ml->message;
 				const auto &rect = ml->rect;
 
 				if (SDL_BUTTON_LEFT & buttons) {
@@ -67,7 +67,28 @@ void stinkingRich::InputSystem::update(float deltaTime) {
 							&& mouseY <= rect.y + rect.h) {
 						std::cout << "Got click.\n";
 						std::cout.flush();
+
+						switch (message) {
+						case MouseMessage::YES: {
+							buyProperty();
+							break;
+						}
+
+						case MouseMessage::NO: {
+							auctionProperty();
+							break;
+						}
+
+						case MouseMessage::NONE: {
+							std::cout << "MouseMessage::NONE Received.\n";
+							break;
+						}
+						}
+
+						stinkingRich::StinkingRich::uiRenderSystem->removeUIEntity();
+
 						pressCooldown = TOTAL_PRESS_COOLDOWN;
+						break;
 					}
 				}
 			}
@@ -178,4 +199,31 @@ void stinkingRich::InputSystem::jailPlayer() {
 	const auto &player = stinkingRich::StinkingRich::currentPlayer.lock();
 
 	ashley::ComponentMapper<Player>::getMapper().get(player)->jail();
+}
+
+void stinkingRich::InputSystem::buyProperty() {
+	const auto &player = stinkingRich::StinkingRich::currentPlayer.lock();
+
+	const auto &positionMapper = ashley::ComponentMapper<Position>::getMapper();
+	const auto &playerMapper = ashley::ComponentMapper<Player>::getMapper();
+
+	const auto &positionComponent = positionMapper.get(player);
+	const auto &playerComponent = playerMapper.get(player);
+
+	//TODO: Handle insufficient funds.
+
+	const std::shared_ptr<stinkingRich::BoardLocation> &playerLocation = positionComponent->position.lock();
+
+	std::cout << "Buying \"" <<playerLocation->details.name << ".\nFunds before: " << playerComponent->getBalance() << ".\n";
+
+	playerLocation->owner = std::weak_ptr<ashley::Entity>(player);
+	playerComponent->addMoney(-(playerLocation->details.value));
+
+	std::cout << "Funds after: "<< playerComponent->getBalance() << ".\n";
+	std::cout.flush();
+}
+
+void stinkingRich::InputSystem::auctionProperty() {
+	std::cout << "Auctioning NYI.\n";
+	std::cout.flush();
 }

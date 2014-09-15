@@ -81,10 +81,10 @@ void stinkingRich::Player::handleMoveResult(std::shared_ptr<stinkingRich::Positi
 			std::cout << "Not owned.\n";
 
 			std::stringstream ss;
-			ss << "Would you like to purchase " << boardLoc->details.name << " for " << boardLoc->details.value.toCString() << "?";
+			ss << "Would you like to purchase " << boardLoc->details.name << " for " << boardLoc->details.value.toString() << "?";
 
 			auto e = stinkingRich::YesNoQuery::makeYesNoQuery(ss.str());
-			stinkingRich::StinkingRich::uiRenderSystem->addQuery(e);
+			stinkingRich::StinkingRich::uiRenderSystem->addUIEntity(e);
 		}
 	} else if (type == stinkingRich::LocationType::GO_TO_JAIL) {
 		jail();
