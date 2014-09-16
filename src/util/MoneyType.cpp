@@ -81,6 +81,11 @@ MoneyType &stinkingRich::MoneyType::operator-=(MoneyType &other) {
 	return *this;
 }
 
+MoneyType &stinkingRich::MoneyType::operator*=(int64_t other) {
+	this->whole *= other;
+	return *this;
+}
+
 MoneyType stinkingRich::MoneyType::operator-() {
 	return MoneyType(-whole, -fractional);
 }

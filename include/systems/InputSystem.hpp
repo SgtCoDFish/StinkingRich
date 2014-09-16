@@ -24,6 +24,8 @@ class InputSystem : public ashley::EntitySystem {
 
 	float pressCooldown = -1.0f;
 
+	bool getsAnotherGo = false;
+
 	bool doMove();
 	void jailPlayer();
 

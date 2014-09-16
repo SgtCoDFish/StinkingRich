@@ -380,8 +380,14 @@ void stinkingRich::Card::moveBackThreeSpaces() {
 
 	for (int i = 0; i < 3; i++) {
 		auto prevEntity = posDetails->prevLocation.lock();
-		posDetails = ashley::ComponentMapper<BoardLocation>::getMapper().get(prevEntity);
-		positionComponent->position = std::weak_ptr<stinkingRich::BoardLocation>(posDetails);
+		if(prevEntity == nullptr) {
+			std::cout.flush();
+			std::cerr << "Couldn't move back :(\n.";
+			std::cerr.flush();
+		} else {
+			posDetails = ashley::ComponentMapper<BoardLocation>::getMapper().get(prevEntity);
+			positionComponent->position = std::weak_ptr<stinkingRich::BoardLocation>(posDetails);
+		}
 	}
 
 	playerComponent->handleMoveResult(positionComponent);

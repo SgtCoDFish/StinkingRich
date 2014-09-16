@@ -17,6 +17,7 @@
 #include <utility>
 #include <memory>
 #include <random>
+#include <map>
 
 #include "Ashley/AshleyCore.hpp"
 
@@ -29,6 +30,7 @@
 #include "systems/AllSystems.hpp"
 #include "util/InitException.hpp"
 #include "util/TextRenderer.hpp"
+#include "util/PropGroupCounter.hpp"
 
 class GoLocation;
 
@@ -42,6 +44,9 @@ int32_t stinkingRich::StinkingRich::leftGap = -1;
 int32_t stinkingRich::StinkingRich::topGap = -1;
 
 bool stinkingRich::StinkingRich::_nextPlayer = false;
+
+std::map<PropertyGroup, stinkingRich::PropGroupCounter> stinkingRich::StinkingRich::groupMap;
+
 std::mt19937_64 stinkingRich::StinkingRich::randomEngine = std::mt19937_64(std::random_device().operator ()());
 
 std::unique_ptr<stinkingRich::TextRenderer> stinkingRich::StinkingRich::textRenderer = nullptr;
@@ -126,6 +131,20 @@ stinkingRich::StinkingRich::~StinkingRich() {
 	close();
 }
 
+void stinkingRich::StinkingRich::initGroupMap() {
+	groupMap[PropertyGroup::BROWN] = PropGroupCounter(2);
+	groupMap[PropertyGroup::LIGHT_BLUE] = PropGroupCounter(3);
+	groupMap[PropertyGroup::MAGENTA] = PropGroupCounter(3);
+	groupMap[PropertyGroup::ORANGE] = PropGroupCounter(3);
+	groupMap[PropertyGroup::RED] = PropGroupCounter(3);
+	groupMap[PropertyGroup::YELLOW] = PropGroupCounter(3);
+	groupMap[PropertyGroup::GREEN] = PropGroupCounter(3);
+	groupMap[PropertyGroup::DARK_BLUE] = PropGroupCounter(2);
+
+	groupMap[PropertyGroup::STATION] = PropGroupCounter(4);
+	groupMap[PropertyGroup::UTILITY] = PropGroupCounter(2);
+}
+
 void stinkingRich::StinkingRich::initBoard() {
 	auto ents = stinkingRich::BoardLocationDetails::getAllBoardEntities(renderer);
 
@@ -144,6 +163,7 @@ void stinkingRich::StinkingRich::initBoard() {
 
 void stinkingRich::StinkingRich::init() {
 	initBoard();
+	initGroupMap();
 
 	for (unsigned int i = 0; i < playerColors.size(); i++) {
 		auto e = std::make_shared<Entity>();
@@ -215,6 +235,16 @@ bool stinkingRich::StinkingRich::handleNextPlayer() {
 	}
 
 	return false;
+}
+
+void stinkingRich::StinkingRich::increasePropertyGroupOwned(PropertyGroup group) {
+	groupMap[group].addOwner(ashley::ComponentMapper<Player>::getMapper().get(currentPlayer.lock()));
+	std::cout << "Group's owned count now at " << groupMap[group].getOwnedCount() << ".\n";
+	std::cout.flush();
+}
+
+bool stinkingRich::StinkingRich::isAllInGroupOwned(PropertyGroup group) {
+	return groupMap[group].isAllSameOwner();
 }
 
 void stinkingRich::StinkingRich::close() {

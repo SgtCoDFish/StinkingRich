@@ -62,6 +62,8 @@ public:
 	MoneyType operator-(MoneyType &other);
 	MoneyType &operator-=(MoneyType &other);
 
+	MoneyType &operator*=(int64_t other);
+
 	MoneyType operator-();
 
 	std::string toString() const;

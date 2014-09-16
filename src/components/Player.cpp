@@ -77,6 +77,12 @@ void stinkingRich::Player::handleMoveResult(std::shared_ptr<stinkingRich::Positi
 			std::cout << "Owned by "
 					<< ashley::ComponentMapper<Player>::getMapper().get(boardLoc->owner.lock())->id
 					<< ".\n";
+
+			std::cout << "Being charged for \"" <<boardLoc->details.name << "\".\nFunds before: " << getBalance() << ".\n";
+
+			addMoney(-boardLoc->getLandingCost());
+			std::cout << "After: " << getBalance() << ".\n";
+			std::cout.flush();
 		} else {
 			std::cout << "Not owned.\n";
 

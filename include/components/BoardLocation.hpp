@@ -14,6 +14,7 @@
 
 #include "Ashley/core/Component.hpp"
 
+#include "StinkingRichConstants.hpp"
 #include "BoardLocationDetails.hpp"
 
 namespace stinkingRich {
@@ -32,11 +33,14 @@ public:
 
 	std::weak_ptr<ashley::Entity> owner = std::shared_ptr<ashley::Entity>(nullptr);
 
+	uint8_t improvements = 0;
+
 	inline bool isOwned() const {
 		return owner.lock() != nullptr;
 	}
 
 	glm::ivec2 getWindowPosition(int32_t xOffset, int32_t yOffset, int32_t width, int32_t height) const;
+	MoneyType getLandingCost() const;
 };
 
 }

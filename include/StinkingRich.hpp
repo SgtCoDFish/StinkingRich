@@ -10,6 +10,7 @@
 
 #include <cstdint>
 
+#include <map>
 #include <memory>
 #include <random>
 #include <vector>
@@ -21,6 +22,8 @@
 #include "cards/Card.hpp"
 #include "systems/UIRenderSystem.hpp"
 #include "util/TextRenderer.hpp"
+#include "util/PropGroupCounter.hpp"
+#include "components/Player.hpp"
 
 struct SDL_Renderer;
 namespace ashley {
@@ -38,6 +41,9 @@ private:
 	static std::mt19937_64 randomEngine;
 
 	static bool _nextPlayer;
+
+	static std::map<PropertyGroup, PropGroupCounter> groupMap;
+	static void initGroupMap();
 
 	SDL_Window *window;
 
@@ -83,6 +89,9 @@ public:
 	bool update(float deltaTime);
 	void close();
 
+	static void increasePropertyGroupOwned(PropertyGroup group);
+	static bool isAllInGroupOwned(PropertyGroup group);
+
 	static void nextPlayer();
 
 	static inline int64_t getRand(int64_t min, int64_t max) {
@@ -99,7 +108,5 @@ public:
 };
 
 }
-
-
 
 #endif /* STINKINGRICH_HPP_ */

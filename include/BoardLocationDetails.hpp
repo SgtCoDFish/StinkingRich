@@ -37,6 +37,41 @@ enum class PropertyGroup {
 	BROWN, LIGHT_BLUE, MAGENTA, ORANGE, RED, YELLOW, GREEN, DARK_BLUE, STATION, UTILITY, NONE
 };
 
+struct LandingCost {
+	int32_t unimproved = 0;
+	int32_t oneImprovement = 0;
+	int32_t twoImprovements = 0;
+	int32_t threeImprovements = 0;
+	int32_t fourImprovements = 0;
+	int32_t fiveImprovements = 0;
+
+	LandingCost(int32_t &&unimproved, int32_t &&one, int32_t &&two, int32_t &&three, int32_t &&four,
+			int32_t &&five) :
+			unimproved(std::move(unimproved)), oneImprovement(std::move(one)), twoImprovements(
+					std::move(two)), threeImprovements(std::move(three)), fourImprovements(
+					std::move(four)), fiveImprovements(std::move(five)) {
+	}
+
+	inline MoneyType operator[](unsigned int index) const {
+		if (index == 0) {
+			return MoneyType(unimproved, 0);
+		} else if (index == 1) {
+			return MoneyType(oneImprovement, 0);
+		} else if (index == 2) {
+			return MoneyType(twoImprovements, 0);
+		} else if (index == 3) {
+			return MoneyType(threeImprovements, 0);
+		} else if (index == 4) {
+			return MoneyType(fourImprovements, 0);
+		} else if (index == 5) {
+			return MoneyType(fiveImprovements, 0);
+		} else {
+			return MoneyType(0, 0);
+		}
+	}
+}
+;
+
 class BoardLocationDetails {
 public:
 	std::string name;
@@ -45,8 +80,10 @@ public:
 	PropertyGroup group;
 	MoneyType value;
 
+	LandingCost landingCost;
+
 	BoardLocationDetails(std::string &&name, LocationType &&type, PropertyGroup &&group,
-			MoneyType &&value);
+			MoneyType &&value, LandingCost *cost);
 	~BoardLocationDetails() = default;
 
 	static SDL_Color getPropertyGroupColor(PropertyGroup group);
@@ -58,6 +95,8 @@ public:
 	 * @return an std::vector of all the entities for the board if successful, or an empty std::vector if the function failed.
 	 */
 	static std::vector<std::shared_ptr<ashley::Entity>> getAllBoardEntities(SDL_Renderer *renderer);
+
+	static std::vector<LandingCost> getLandingCostsFor(PropertyGroup group);
 };
 
 }

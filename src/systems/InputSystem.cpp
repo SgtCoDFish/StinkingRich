@@ -46,6 +46,8 @@ void stinkingRich::InputSystem::update(float deltaTime) {
 
 	keyStates = SDL_GetKeyboardState(nullptr);
 
+	bool advancePlayer = false;
+
 	int mouseX = 0;
 	int mouseY = 0;
 	auto buttons = SDL_GetMouseState(&mouseX, &mouseY);
@@ -71,11 +73,13 @@ void stinkingRich::InputSystem::update(float deltaTime) {
 						switch (message) {
 						case MouseMessage::YES: {
 							buyProperty();
+							if(!getsAnotherGo) advancePlayer = true;
 							break;
 						}
 
 						case MouseMessage::NO: {
 							auctionProperty();
+							if(!getsAnotherGo) advancePlayer = true;
 							break;
 						}
 
@@ -95,7 +99,11 @@ void stinkingRich::InputSystem::update(float deltaTime) {
 		} else {
 			if (keyStates[SDL_SCANCODE_SPACE]) {
 				if (!doMove()) {
-					stinkingRich::StinkingRich::nextPlayer();
+					if(stinkingRich::StinkingRich::uiRenderSystem->checkProcessing()) {
+						advancePlayer = false;
+					} else {
+						if(!getsAnotherGo) advancePlayer = true;
+					}
 				}
 
 				pressCooldown = TOTAL_PRESS_COOLDOWN;
@@ -111,6 +119,11 @@ void stinkingRich::InputSystem::update(float deltaTime) {
 				pressCooldown = TOTAL_PRESS_COOLDOWN;
 			}
 		}
+	}
+
+	if(advancePlayer) {
+		getsAnotherGo = false;
+		stinkingRich::StinkingRich::nextPlayer();
 	}
 }
 
@@ -152,8 +165,12 @@ bool stinkingRich::InputSystem::doMove() {
 			if (doubles == 3) {
 				jailPlayer();
 				return false;
+			} else {
+				getsAnotherGo = true;
 			}
 		}
+	} else {
+		getsAnotherGo = false;
 	}
 
 	if (!playerComponent->isJailed()) {
@@ -214,16 +231,17 @@ void stinkingRich::InputSystem::buyProperty() {
 
 	const std::shared_ptr<stinkingRich::BoardLocation> &playerLocation = positionComponent->position.lock();
 
-	std::cout << "Buying \"" <<playerLocation->details.name << ".\nFunds before: " << playerComponent->getBalance() << ".\n";
+	std::cout << "Buying \"" <<playerLocation->details.name << "\".\nFunds before: " << playerComponent->getBalance() << ".\n";
 
 	playerLocation->owner = std::weak_ptr<ashley::Entity>(player);
 	playerComponent->addMoney(-(playerLocation->details.value));
+	stinkingRich::StinkingRich::increasePropertyGroupOwned(playerLocation->details.group);
 
 	std::cout << "Funds after: "<< playerComponent->getBalance() << ".\n";
 	std::cout.flush();
 }
 
 void stinkingRich::InputSystem::auctionProperty() {
-	std::cout << "Auctioning NYI.\n";
+	std::cout << "Auctioning not implemented.\n";
 	std::cout.flush();
 }
