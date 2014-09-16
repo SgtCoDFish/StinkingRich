@@ -15,11 +15,9 @@
 #include "util/MoneyType.hpp"
 
 namespace stinkingRich {
-using Money = MoneyType;
-
 namespace constants {
 
-const Money startingMoney = MoneyType(1500, 0);
+const MoneyType startingMoney = MoneyType(1500, 0);
 const std::string currencySymbol = "£";
 const std::string currencySeparator = ".";
 
@@ -33,7 +31,6 @@ constexpr int32_t boardWidth = bigLocationWidth * 2 + smallLocationWidth * 9;
 constexpr int32_t boardHeight = bigLocationHeight * 2 + smallLocationHeight * 9;
 
 }
-
 }
 
 

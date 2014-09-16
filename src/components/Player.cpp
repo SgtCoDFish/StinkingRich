@@ -15,21 +15,24 @@
 
 #include "StinkingRich.hpp"
 #include "StinkingRichConstants.hpp"
+
 #include "components/BoardLocation.hpp"
 #include "components/Player.hpp"
 #include "components/Position.hpp"
 #include "components/YesNoQuery.hpp"
+
+#include "systems/InputSystem.hpp"
 
 using namespace stinkingRich;
 
 uint64_t stinkingRich::Player::nextID = 0;
 int64_t stinkingRich::Player::made = 0;
 
-void stinkingRich::Player::addMoney(Money amount) {
+void stinkingRich::Player::addMoney(MoneyType amount) {
 	balance += amount;
 }
 
-void stinkingRich::Player::removeMoney(Money amount) {
+void stinkingRich::Player::removeMoney(MoneyType amount) {
 	balance -= amount;
 }
 
@@ -74,23 +77,59 @@ void stinkingRich::Player::handleMoveResult(std::shared_ptr<stinkingRich::Positi
 		std::cout << "Landed on " << boardLoc->details.name << ".\n";
 
 		if (boardLoc->isOwned()) {
-			std::cout << "Owned by "
-					<< ashley::ComponentMapper<Player>::getMapper().get(boardLoc->owner.lock())->id
-					<< ".\n";
+			auto owner = ashley::ComponentMapper<Player>::getMapper().get(boardLoc->owner.lock());
+			const auto &group = boardLoc->details.group;
 
-			std::cout << "Being charged for \"" <<boardLoc->details.name << "\".\nFunds before: " << getBalance() << ".\n";
+			std::cout << "Owned by " << owner->id << ".\n";
 
-			addMoney(-boardLoc->getLandingCost());
+			std::cout << "Being charged for \"" << boardLoc->details.name << "\".\nFunds before: "
+					<< getBalance() << ".\n";
+
+			MoneyType landingCost(0,0);
+
+			if (group == PropertyGroup::STATION) {
+				const int ownedCount = stinkingRich::StinkingRich::countOwnedByPlayer(owner, PropertyGroup::STATION);
+				landingCost = boardLoc->details.landingCost[ownedCount];
+			} else if (group == PropertyGroup::UTILITY) {
+				const int ownedCount = stinkingRich::StinkingRich::countOwnedByPlayer(owner, PropertyGroup::UTILITY);
+				int mod = 1;
+
+				if(ownedCount == 1) {
+					mod = 4;
+				} else if(ownedCount == 2) {
+					mod = 10;
+				} else {
+					std::cerr << "Invalid number of utilities owned; something is horribly wrong.\n";
+					std::cerr.flush();
+
+					return;
+				}
+
+				const int totalCharge = mod * (stinkingRich::InputSystem::getDieOne() + stinkingRich::InputSystem::getDieTwo());
+				landingCost = MoneyType(totalCharge, 0);
+			} else {
+				landingCost = boardLoc->getLandingCost();
+			}
+
+			addMoney(-landingCost);
+			owner->addMoney(landingCost);
+
 			std::cout << "After: " << getBalance() << ".\n";
 			std::cout.flush();
 		} else {
 			std::cout << "Not owned.\n";
 
-			std::stringstream ss;
-			ss << "Would you like to purchase " << boardLoc->details.name << " for " << boardLoc->details.value.toString() << "?";
+			if (boardLoc->details.value <= balance) {
+				std::stringstream ss;
+				ss << "Would you like to purchase " << boardLoc->details.name << " for "
+						<< boardLoc->details.value.toString() << "?";
 
-			auto e = stinkingRich::YesNoQuery::makeYesNoQuery(ss.str());
-			stinkingRich::StinkingRich::uiRenderSystem->addUIEntity(e);
+				auto e = stinkingRich::YesNoQuery::makeYesNoQuery(ss.str());
+				stinkingRich::StinkingRich::uiRenderSystem->addUIEntity(e);
+			} else {
+				std::cout << "We require more minerals.\n";
+				std::cout.flush();
+			}
 		}
 	} else if (type == stinkingRich::LocationType::GO_TO_JAIL) {
 		jail();

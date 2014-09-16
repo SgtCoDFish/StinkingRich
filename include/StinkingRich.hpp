@@ -14,6 +14,7 @@
 #include <memory>
 #include <random>
 #include <vector>
+#include <chrono>
 
 #include "SDL2/SDL.h"
 
@@ -51,11 +52,13 @@ private:
 
 	ashley::Engine engine;
 
-	const uint8_t playerAlpha = 0xAA;
-	const std::vector<SDL_Color> playerColors = { { 0xFF, 0x00, 0x00, playerAlpha }, // red
-			{ 0x00, 0xFF, 0x00, playerAlpha }, //green
-			{ 0x00, 0x00, 0xFF, playerAlpha } //blue
+	const uint8_t playerAlpha = 0xDD;
+	const std::vector<SDL_Color> playerColors = { { 0xFF, 0x66, 0x22, playerAlpha }, // red
+			{ 0x22, 0xFF, 0x22, playerAlpha }, //green
+			{ 0x22, 0x22, 0xFF, playerAlpha } //blue
 	};
+
+	std::chrono::high_resolution_clock::time_point nseed1; // used for timing initialisation and then seeding prng
 
 	std::shared_ptr<ashley::Entity> go = nullptr;
 
@@ -91,6 +94,7 @@ public:
 
 	static void increasePropertyGroupOwned(PropertyGroup group);
 	static bool isAllInGroupOwned(PropertyGroup group);
+	static int countOwnedByPlayer(std::shared_ptr<stinkingRich::Player> player, PropertyGroup group);
 
 	static void nextPlayer();
 

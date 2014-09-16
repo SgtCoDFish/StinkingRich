@@ -42,9 +42,17 @@ public:
 		std::cout << "New ownerIDs size: " << ownerIDs.size() << ".\n";
 	}
 
+	int countOwnedByPlayerID(int64_t id) const {
+		return std::count(ownerIDs.begin(), ownerIDs.end(), id);
+	}
+
+	int countOwnedByPlayer(std::shared_ptr<stinkingRich::Player> player) const {
+		return countOwnedByPlayerID(player->id);
+	}
+
 	bool isAllSameOwner() const {
 		if (ownerIDs.size() > 0) {
-			auto count = std::count(ownerIDs.begin(), ownerIDs.end(), ownerIDs[0]);
+			auto count = countOwnedByPlayerID(ownerIDs[0]);
 
 			std::cout << "Counted " << count << " when size was " << ownerIDs.size() << ", location count was "<< groupLocationCount << ".\n";
 			std::cout.flush();

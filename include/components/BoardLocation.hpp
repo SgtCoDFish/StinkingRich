@@ -40,6 +40,11 @@ public:
 	}
 
 	glm::ivec2 getWindowPosition(int32_t xOffset, int32_t yOffset, int32_t width, int32_t height) const;
+
+	/**
+	 * Only works for regular properties
+	 * @return
+	 */
 	MoneyType getLandingCost() const;
 };
 

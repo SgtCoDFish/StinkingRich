@@ -41,8 +41,8 @@ public:
 		made--;
 	}
 
-	void addMoney(Money amount);
-	void removeMoney(Money amount);
+	void addMoney(MoneyType amount);
+	void removeMoney(MoneyType amount);
 
 	const std::string getBalance() const;
 
@@ -74,7 +74,7 @@ private:
 	static uint64_t nextID;
 	static int64_t made;
 
-	Money balance;
+	MoneyType balance;
 
 	int doublesRolled;
 	int turnsLeftInJail;

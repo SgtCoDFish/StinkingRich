@@ -18,6 +18,7 @@
 #include <memory>
 #include <random>
 #include <map>
+#include <chrono>
 
 #include "Ashley/AshleyCore.hpp"
 
@@ -47,7 +48,7 @@ bool stinkingRich::StinkingRich::_nextPlayer = false;
 
 std::map<PropertyGroup, stinkingRich::PropGroupCounter> stinkingRich::StinkingRich::groupMap;
 
-std::mt19937_64 stinkingRich::StinkingRich::randomEngine = std::mt19937_64(std::random_device().operator ()());
+std::mt19937_64 stinkingRich::StinkingRich::randomEngine = std::mt19937_64();
 
 std::unique_ptr<stinkingRich::TextRenderer> stinkingRich::StinkingRich::textRenderer = nullptr;
 // the ui render system uses the text renderer so the text renderer must be initialised first.
@@ -85,6 +86,8 @@ bool stinkingRich::StinkingRich::update(float deltaTime) {
 
 stinkingRich::StinkingRich::StinkingRich() :
 		engine() {
+	nseed1 = std::chrono::high_resolution_clock::now();
+
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
 		std::cerr << "Could not initialise SDL:\n" << SDL_GetError() << std::endl;
 		throw stinkingRich::InitException("SDL_Init");
@@ -100,7 +103,7 @@ stinkingRich::StinkingRich::StinkingRich() :
 	windowWidth = 1280;
 	windowHeight = 768;
 
-	leftGap = (stinkingRich::StinkingRich::windowWidth - stinkingRich::constants::boardWidth) / 2;
+	leftGap = (stinkingRich::StinkingRich::windowWidth - stinkingRich::constants::boardWidth) / 4;
 	topGap = (stinkingRich::StinkingRich::windowHeight - stinkingRich::constants::boardHeight) / 2;
 
 	window = SDL_CreateWindow("Stinking Rich", SDL_WINDOWPOS_UNDEFINED,
@@ -191,6 +194,14 @@ void stinkingRich::StinkingRich::init() {
 	engine.addSystem(std::make_shared<BoardRenderSystem>(renderer, 9000));
 	engine.addSystem(std::make_shared<PieceRenderSystem>(renderer, 10000));
 	engine.addSystem(uiRenderSystem);
+	engine.addSystem(std::make_shared<HUDRenderSystem>(renderer, 50000));
+
+	auto nseed2 = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(nseed2 - nseed1).count();
+
+	std::cout << "Duration for seed: " << duration << "ns.\n";
+	std::cout.flush();
+	randomEngine.seed(duration);
 }
 
 void stinkingRich::StinkingRich::nextPlayer() {
@@ -245,6 +256,10 @@ void stinkingRich::StinkingRich::increasePropertyGroupOwned(PropertyGroup group)
 
 bool stinkingRich::StinkingRich::isAllInGroupOwned(PropertyGroup group) {
 	return groupMap[group].isAllSameOwner();
+}
+
+int stinkingRich::StinkingRich::countOwnedByPlayer(std::shared_ptr<stinkingRich::Player> player, PropertyGroup group) {
+	return groupMap[group].countOwnedByPlayer(player);
 }
 
 void stinkingRich::StinkingRich::close() {

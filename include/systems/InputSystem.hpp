@@ -18,6 +18,9 @@ namespace stinkingRich {
 class InputSystem : public ashley::EntitySystem {
 	constexpr static float TOTAL_PRESS_COOLDOWN = 0.5f;
 
+	static int64_t die1;
+	static int64_t die2;
+
 	const uint8_t *keyStates = nullptr;
 
 	ashley::Engine *engine = nullptr;
@@ -40,6 +43,13 @@ public:
 
 	void update(float deltaTime) override;
 
+	static inline int64_t getDieOne() {
+		return die1;
+	}
+
+	static inline int64_t getDieTwo() {
+		return die2;
+	}
 };
 
 }

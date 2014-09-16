@@ -12,5 +12,6 @@
 #include "BoardRenderSystem.hpp"
 #include "UIRenderSystem.hpp"
 #include "InputSystem.hpp"
+#include "HUDRenderSystem.hpp"
 
 #endif /* ALLSYSTEMS_HPP_ */

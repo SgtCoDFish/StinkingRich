@@ -14,7 +14,7 @@
 #include "util/TextRenderer.hpp"
 
 stinkingRich::TextRenderer::TextRenderer(std::string fontLocation, int fontSize) :
-		color( { 0xFF, 0xFF, 0xFF, 0xFF }) {
+		color( { 0x00, 0x00, 0x00, 0xFF }) {
 	font = TTF_OpenFont(fontLocation.c_str(), fontSize);
 
 	if (font == nullptr) {
@@ -47,7 +47,7 @@ void stinkingRich::TextRenderer::renderToSurface(SDL_Surface *target, int32_t x,
 		std::cerr << "Can not render \"" << text
 				<< "\" to surface; the surface isn't large enough to contain the text.\n";
 
-		// evil, I know; I chose this mainly because SDL is a C API and therefore the cleanup rules aren't sensible.
+		// evil, I know; I chose this mainly because SDL is a C API and the cleanup rules aren't sensible.
 		// I'd prefer to write a C++ wrapper for SDL features which cleans up when the object is destroyed
 		// but there's nothing wrong with this for now.
 

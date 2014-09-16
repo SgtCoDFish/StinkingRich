@@ -464,7 +464,7 @@ std::vector<LandingCost> stinkingRich::BoardLocationDetails::getLandingCostsFor(
 	}
 
 	case PropertyGroup::STATION: {
-		retValTemp.emplace_back(25, 50, 100, 200, 200, 200);
+		retValTemp.emplace_back(0, 25, 50, 100, 200, 200);
 		break;
 	}
 

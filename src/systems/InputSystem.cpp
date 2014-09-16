@@ -23,6 +23,9 @@
 #include "components/MouseListener.hpp"
 #include "systems/InputSystem.hpp"
 
+int64_t stinkingRich::InputSystem::die1 = -1;
+int64_t stinkingRich::InputSystem::die2 = -1;
+
 stinkingRich::InputSystem::InputSystem(uint64_t priority) :
 		EntitySystem(priority) {
 }
@@ -139,6 +142,9 @@ bool stinkingRich::InputSystem::doMove() {
 
 	int dieOne = stinkingRich::StinkingRich::getRand(1, 6);
 	int dieTwo = stinkingRich::StinkingRich::getRand(1, 6);
+
+	die1 = dieOne;
+	die2 = dieTwo;
 
 	int totalMove = dieOne + dieTwo;
 
