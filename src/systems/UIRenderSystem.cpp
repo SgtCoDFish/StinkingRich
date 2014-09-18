@@ -145,7 +145,7 @@ void stinkingRich::UIRenderSystem::removeUIEntity() {
 		return;
 	}
 
-	for (const auto &e : addedUIEntities) {
+	for (auto &e : addedUIEntities) {
 		engine->removeEntity(e);
 	}
 
