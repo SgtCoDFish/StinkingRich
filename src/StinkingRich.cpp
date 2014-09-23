@@ -202,6 +202,9 @@ void stinkingRich::StinkingRich::init() {
 	std::cout << "Duration for seed: " << duration << "ns.\n";
 	std::cout.flush();
 	randomEngine.seed(duration);
+
+	chanceCards = Deck(stinkingRich::CardType::CHANCE);
+	communityChestCards = Deck(stinkingRich::CardType::COMMUNITY_CHEST);
 }
 
 void stinkingRich::StinkingRich::nextPlayer() {
