@@ -10,3 +10,4 @@ Release/*
 *.o
 /Debug/
 /Release/
+/dist/
