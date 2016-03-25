@@ -4,7 +4,9 @@ Stinking Rich
 Stinking rich is a clone of the "Monopoly" board game, created to test the
 [AshleyCPP](https://github.com/SgtCoDFish/AshleyCPP) framework.
 
-The graphics are intentionally basic but functional. There are no sounds provided yet.
+Note that since AshleyCPP was majorly refactored, in line with the Java original, StinkingRich will no longer compile with the latest version and will require some major updates in order to work again. It is however compilable with a much older version.
+
+The graphics are intentionally basic but functional.
 
 How to Play
 ===========
